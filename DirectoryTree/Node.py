@@ -1,19 +1,33 @@
 from DirectoryTree.ChunkHandle import ChunkHandle
 from DirectoryTree.Permission import Permission
+from User.User import User
 
 class Node:
     
-    def __init__(self, name, owner = None):
+    def __init__(self, 
+                 name: str,
+                 owner: User = None, 
+                 parent: 'DirectoryNode' = None):
 
         self.name = name
         self.owner = owner
         self.permission = Permission()
+        self.parent = parent
     
-    def permission_string(self):
+    def __str__(self):
+        return self.name
+    
+    def permission_string(self) -> str:
         raise NotImplementedError("CB: subclass must implement __str__ method")
     
-    def set_permission(self, permission_string):
-        self.permission.set_permission(permission_string[1:])
+    def set_owner(self, owner: User):
+        self.owner = owner
+    
+    def set_permission(self, permission_string: str):
+        self.permission.set_permission(permission_string)
+    
+    def verify_permission(self, user: User):
+        return self.permission.verify_permission(owner = self.owner, user = user)
     
     def get_size(self):
         raise NotImplementedError("CB: subclass must implement get_size method")
@@ -52,7 +66,7 @@ class FileNode(Node):
         return {
             "name": self.name,
             "owner": self.owner,
-            "permission": str(self.permission),
+            "permission": "-" + str(self.permission),
             "chunks": [chunk.to_string() for chunk in self.chunks],
             "chunk_size": self.chunk_size,
             "size": self.size,
@@ -81,6 +95,13 @@ class DirectoryNode(Node):
     def add_child(self, child):
         assert isinstance(child, Node), "child must be of type CB"
         self.children.append(child)
+        child.parent = self
+    
+    def get_child(self, name) -> Node:
+        for child in self.children:
+            if child.name == name:
+                return child
+        return None
     
     def remove_child(self, child):
         self.children.remove(child)
@@ -94,17 +115,20 @@ class DirectoryNode(Node):
     def to_dict(self):
         return {
             "name": self.name,
-            "owner": self.owner,
-            "permission": str(self.permission),
+            "owner": self.owner.to_dict() if self.owner is not None else None,
+            "permission": "d" + str(self.permission),
             "children": [child.to_dict() for child in self.children]
         }
     
     @staticmethod
     def from_dict(dict):
-        directory_node = DirectoryNode(dict["name"], dict["owner"])
+        name = dict["name"]
+        owner = User.from_dict(dict["owner"])
+        directory_node = DirectoryNode(name, owner)
         directory_node.set_permission(dict["permission"])
         for child in dict["children"]:
-            directory_node.add_child(Node.from_dict(child))
+            child_cls = FileNode if "chunks" in child else DirectoryNode
+            directory_node.add_child(child_cls.from_dict(child))
         return directory_node
 
                 

@@ -1,3 +1,4 @@
+from User.User import User
 
 class Permission:
 
@@ -29,7 +30,7 @@ class Permission:
         }
     
     def set_permission(self, permission_string):
-        # example: rwxr-xr--
+        permission_string = permission_string[1:]
         for i, user_type in enumerate([Permission.OWNER, Permission.GROUP, Permission.OTHERS]):
             self.permission[user_type][Permission.READ] = permission_string[i * 3] == "r"
             self.permission[user_type][Permission.WRITE] = permission_string[i * 3 + 1] == "w"
@@ -37,6 +38,18 @@ class Permission:
     
     def get_permission(self, user_type, permission_type):
         return self.permission[user_type][permission_type]
+
+    def verify_permission(self, owner: User, user) -> bool:
+
+        if user.privilage == User.ROOT:
+            return True
+
+        if owner == user:
+            return self.permission[Permission.OWNER]
+        elif user in owner.groups:
+            return self.permission[Permission.GROUP]
+        else:
+            return self.permission[Permission.OTHERS]
     
     def __str__(self):
         
