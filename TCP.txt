@@ -1,0 +1,34 @@
+Client & Master: 
+C: USER alpt
+S: 331 Password required for alpt.
+C: PASS 12345
+S: 230 User alpt logged in.
+C: PWD
+S: 257 "/home/alpt" is the current directory.
+C: LIST
+S: 150 Here comes the directory listing.
+S: File1
+S: File2
+S: File3
+S: .*.
+S: 226 Directory send OK.
+C: RETR File1
+S: 150 Transferring chunk handles.
+S: chunk1 10 7580d90c
+S: chunk2 11 dccf7e3e
+S: .*.
+S: 226 Transfer complete.
+C: QUIT
+S: 221 Goodbye.
+
+Client & Slave:
+C: HELO
+S: 250 Hello, slave.
+C: chunk1 10 7580d90c
+S: 150 Transferring chunk data.
+S: 226 Transfer complete.
+C: chunk2 11 dccf7e3e
+S: 150 Transferring chunk data.
+S: 226 Transfer complete.
+C: QUIT
+S: 221 Goodbye.
