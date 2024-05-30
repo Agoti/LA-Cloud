@@ -1,20 +1,19 @@
 
 import threading
-import socket
 from User.User import User
 from DirectoryTree.DirectoryTree import DirectoryTree
+from DirectoryTree.Node import FileNode, DirectoryNode
 from User.Cipher import MD5Cipher
+from IO.IOStream import IOStream
 
 class MSThread(threading.Thread):
         
     def __init__(self,
-                client: socket.socket, 
-                address: str,
+                io_stream: IOStream,
                 directory_tree: DirectoryTree,
                 users: list):
         threading.Thread.__init__(self)
-        self.client = client
-        self.address = address
+        self.io_stream = io_stream
 
         self.directory_tree = directory_tree
         self.users = users
@@ -26,27 +25,27 @@ class MSThread(threading.Thread):
         self.node = None
     
     def run(self):
-        print(f"MSThread: Connection from {self.address} has been established!")
         while True:
             try:
-                data = self.client.recv(1024)
+                data = self.io_stream.receive()
                 print(f"MSThread: Received data: {data}")
                 response = self.process_data(data)
-                self.client.send(bytes(response, "utf-8"))
+                self.io_stream.send(response)
                 print(f"MSThread: Sent data: {response}")
                 if response == "221 Goodbye":
                     break
             except Exception as e:
                 print(f"MSThread: Error: {e}")
+                self.io_stream.send("500 Internal server error")
                 break
-        print(f"MSThread: Connection from {self.address} has been closed!")
+
+        self.stop()
     
     def stop(self):
-        self.client.close()
+        self.io_stream.close()
     
-    def process_data(self, data: bytes):
+    def process_data(self, data: str):
 
-        data = data.decode("utf-8").strip().lower()
         args = data.split(" ")
 
         if data.startswith("user"):
@@ -62,7 +61,10 @@ class MSThread(threading.Thread):
         elif data.startswith("pwd"):
             response = self.ftp_pwd()
         elif data.startswith("list"):
-            response = self.ftp_list()
+            if len(args) < 2:
+                response = self.ftp_list()
+            else:
+                response = self.ftp_list(args[1])
         elif data.startswith("cd"):
             if len(args) < 2:
                 return "501 Syntax error in parameters or arguments"
@@ -97,4 +99,20 @@ class MSThread(threading.Thread):
         if self.state != "password":
             return "530 Not logged in"
         return "257 " + self.directory_tree.get_path(self.node)
-
+    
+    def ftp_list(self, path = None):
+        if self.state != "password":
+            return "530 Not logged in"
+        print(f"ftp_list: path: {path}")
+        node = self.node if path is None else self.directory_tree.get_node(path)
+        if node is None:
+            return "550 Failed to list directory"
+        if not isinstance(node, DirectoryNode):
+            return "550 Not a directory"
+        print(f"ftp_list: node: {node}")
+        # check permission
+        if not node.verify_permission(self.user, "read"):
+            return "550 Permission denied"
+        children = node.list_children()
+        return "200 " + "\n".join(children)
+    

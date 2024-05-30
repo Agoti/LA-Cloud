@@ -35,13 +35,12 @@ class DirectoryTree:
         # returns ["a", "b", "c"]
         return path.split("/")[1:]
     
-    @staticmethod
-    def get_path(node):
+    def get_path(self, node):
         # node = node at path "/a/b/c"
         # returns "/a/b/c"
         current = node
         path = ""
-        while current.parent is not None:
+        while current is not self.root:
             path = "/" + current.name + path
             current = current.parent
         return path
@@ -50,6 +49,8 @@ class DirectoryTree:
         # path = "/a/b/c"
         # returns node at path "/a/b/c"
         current = self.root
+        if path == "/":
+            return current
         for name in self.parse_path(path):
             current = current.get_child(name)
             if current is None:

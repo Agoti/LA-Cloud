@@ -1,3 +1,4 @@
+import json
 
 class User:
 
@@ -8,14 +9,14 @@ class User:
                  name,
                  encrypted_password,
                  groups = [],
-                 privilage = USER):
+                 privilege = USER):
         
         self.name = name
         self.encrypted_password = encrypted_password
         self.groups = groups
 
-        assert privilage in [User.USER, User.ROOT], "Invalid privilage"
-        self.privilage = privilage
+        assert privilege in [User.USER, User.ROOT], "Invalid privilage"
+        self.privilege = privilege
     
     def __repr__(self):
         return self.name
@@ -25,7 +26,7 @@ class User:
             "name": self.name,
             "encrypted_password": self.encrypted_password,
             "groups": self.groups,
-            "privilage": self.privilage
+            "privilage": self.privilege
         }
     
     @staticmethod
@@ -64,19 +65,15 @@ class User:
     @staticmethod
     def save_users(users, path):
         with open(path, "w") as file:
-            for user in users:
-                file.write(user.name + "\n")
-                file.write(user.encrypted_password + "\n")
-                file.write(" ".join(user.groups) + "\n")
+            json.dump([user.to_dict() for user in users], file, indent=4)
     
     @staticmethod
     def load_users(path):
         users = []
         with open(path, "r") as file:
-            lines = file.readlines()
-            for i in range(0, len(lines), 3):
-                users.append(User(lines[i].strip(), lines[i + 1].strip(), lines[i + 2].strip().split(" ")))
-        
+            data = json.load(file)
+        for user in data:
+            users.append(User.from_dict(user))
         return users
 
 
@@ -87,20 +84,20 @@ if __name__ == "__main__":
         admin = User(name='admin',
                     encrypted_password=MD5Cipher.encrypt('admin'),
                     groups=['admin'],
-                    privilage=User.ROOT)
+                    privilege=User.ROOT)
         lmx = User(name='lmx',
                 encrypted_password=MD5Cipher.encrypt('lmx'),
                 groups=['thu', 'lmx'],
-                privilage=User.USER)
+                privilege=User.USER)
         alpt = User(name='alpt',
                     encrypted_password=MD5Cipher.encrypt('alpt'),
                     groups=['thu', 'alpt'],
-                    privilage=User.USER)
+                    privilege=User.USER)
         users = [admin, lmx, alpt]
     except AssertionError as e:
         print(e)
 
-    User.save_users(users, "Data/users.txt")
-    users = User.load_users("Data/users.txt")
+    User.save_users(users, "Data/users.json")
+    users = User.load_users("Data/users.json")
     print(users)
 

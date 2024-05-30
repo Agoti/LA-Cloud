@@ -26,8 +26,8 @@ class Node:
     def set_permission(self, permission_string: str):
         self.permission.set_permission(permission_string)
     
-    def verify_permission(self, user: User):
-        return self.permission.verify_permission(owner = self.owner, user = user)
+    def verify_permission(self, user: User, operation = None):
+        return self.permission.verify_permission(owner = self.owner, user = user, operation = operation)
     
     def get_size(self):
         raise NotImplementedError("CB: subclass must implement get_size method")
@@ -91,6 +91,9 @@ class DirectoryNode(Node):
     
     def permission_string(self):
         return "d" + str(self.permission)
+    
+    def list_children(self):
+        return [child.name for child in self.children]
     
     def add_child(self, child):
         assert isinstance(child, Node), "child must be of type CB"

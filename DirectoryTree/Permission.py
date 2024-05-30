@@ -39,17 +39,27 @@ class Permission:
     def get_permission(self, user_type, permission_type):
         return self.permission[user_type][permission_type]
 
-    def verify_permission(self, owner: User, user) -> bool:
+    def verify_permission(self, owner: User, user: User, operation: str = None) -> bool:
 
-        if user.privilage == User.ROOT:
+        if user.privilege == User.ROOT:
             return True
+        
+        if owner is None:
+            return False
+        
+        if operation.lower() in ["read", "r"]:
+            operation = Permission.READ
+        elif operation.lower() in ["write", "w"]:
+            operation = Permission.WRITE
+        elif operation.lower() in ["execute", "x"]:
+            operation = Permission.EXECUTE
 
         if owner == user:
-            return self.permission[Permission.OWNER]
+            return self.permission[Permission.OWNER][operation]
         elif user in owner.groups:
-            return self.permission[Permission.GROUP]
+            return self.permission[Permission.GROUP][operation]
         else:
-            return self.permission[Permission.OTHERS]
+            return self.permission[Permission.OTHERS][operation]
     
     def __str__(self):
         
