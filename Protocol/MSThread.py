@@ -3,6 +3,7 @@ import threading
 from User.User import User
 from DirectoryTree.DirectoryTree import DirectoryTree
 from DirectoryTree.Node import FileNode, DirectoryNode
+from DirectoryTree.ChunkHandle import ChunkHandle
 from User.Cipher import MD5Cipher
 from IO.IOStream import IOStream
 
@@ -60,7 +61,7 @@ class MSThread(threading.Thread):
             response = self.ftp_quit()
         elif data.startswith("pwd"):
             response = self.ftp_pwd()
-        elif data.startswith("list"):
+        elif data.startswith("ls"):
             if len(args) < 2:
                 response = self.ftp_list()
             else:
@@ -69,6 +70,26 @@ class MSThread(threading.Thread):
             if len(args) < 2:
                 return "501 Syntax error in parameters or arguments"
             response = self.ftp_cd(args[1])
+        elif data.startswith("mkdir"):
+            if len(args) < 2:
+                return "501 Syntax error in parameters or arguments"
+            response = self.ftp_mkdir(args[1])
+        elif data.startswith("retr"):
+            if len(args) < 2:
+                return "501 Syntax error in parameters or arguments"
+            response = self.ftp_retr(args[1])
+        elif data.startswith("stor"):
+            if len(args) < 3:
+                return "501 Syntax error in parameters or arguments"
+            response = self.ftp_stor(args[1], int(args[2]))
+        elif data.startswith("del"):
+            if len(args) < 2:
+                return "501 Syntax error in parameters or arguments"
+            response = self.ftp_delete(args[1])
+        elif data.startswith("rmdir"):
+            if len(args) < 2:
+                return "501 Syntax error in parameters or arguments"
+            response = self.ftp_rmdir(args[1])
         else:
             response = "500 Syntax error, command unrecognized"
         
@@ -114,5 +135,110 @@ class MSThread(threading.Thread):
         if not node.verify_permission(self.user, "read"):
             return "550 Permission denied"
         children = node.list_children()
-        return "200 " + "\n".join(children)
+        return "200 \n" + "\n".join(children)
+    
+    def ftp_cd(self, path):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.directory_tree.get_node(path, node = self.node)
+        if node is None:
+            return "550 Failed to change directory"
+        if not isinstance(node, DirectoryNode):
+            return "550 Not a directory"
+        if not node.verify_permission(self.user, "execute"):
+            return "550 Permission denied"
+        self.node = node
+        return "250 Directory changed to " + self.directory_tree.get_path(self.node)
+    
+    def ftp_mkdir(self, path):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.directory_tree.get_node(path, node = self.node)
+        if node is not None:
+            return "550 Directory already exists"
+        parent = self.directory_tree.get_node(path, node = self.node, get_parent = True)
+        if not parent.verify_permission(self.user, "write"):
+            return "550 Permission denied"
+        absolute_path = self.directory_tree.get_path(parent) + "/" + path.split("/")[-1]
+        print(f"ftp_mkdir: absolute_path: {absolute_path}")
+        self.directory_tree.add_directory(absolute_path, self.user, "drwxr-xr--")
+        return "257 Directory created"
+    
+    def ftp_retr(self, path):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.directory_tree.get_node(path, node = self.node)
+        if node is None:
+            return "550 File not found"
+        if not isinstance(node, FileNode):
+            return "550 Not a file"
+        if not node.verify_permission(self.user, "read"):
+            return "550 Permission denied"
+        return "200 \n" + "\n".join([chunk.to_string() for chunk in node.chunks])
+    
+    def ftp_stor(self, path, size):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.directory_tree.get_node(path, node = self.node)
+        if node is not None:
+            return "550 File already exists"
+        parent = self.directory_tree.get_node(path, node = self.node, get_parent = True)
+        if not parent.verify_permission(self.user, "write"):
+            return "550 Permission denied"
+        chunks = self._allocate_chunks(size)
+        absolute_path = self.directory_tree.get_path(parent) + "/" + path.split("/")[-1]
+        print(f"ftp_stor: absolute_path: {absolute_path}")
+        self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunks, 10)
+        return "200 File created"
+    
+    def _allocate_chunks(self, size):
+        n_chunks = size // 10
+        chunks = []
+        for i in range(n_chunks):
+            chunk = ChunkHandle("pi1", "chunk" + str(i), "fingerprint", 10)
+            chunks.append(chunk)
+        if size % 10 != 0:
+            chunk = ChunkHandle("pi1", "chunk" + str(n_chunks), "fingerprint", size % 10)
+            chunks.append(chunk)
+        return chunks
+    
+    def _deallocate_chunks(self, node):
+        if isinstance(node, FileNode):
+            for chunk in node.chunks:
+                print(f"Deallocating chunk: {str(chunk)}")
+        elif isinstance(node, DirectoryNode):
+            for child in node.children:
+                self._deallocate_chunks(child)
+        
+
+    def ftp_delete(self, path):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.directory_tree.get_node(path, node = self.node)
+        if node is None:
+            return "550 File not found"
+        if not isinstance(node, FileNode):
+            return "550 Not a file"
+        if not node.verify_permission(self.user, "write"):
+            return "550 Permission denied"
+        self._deallocate_chunks(node)
+        absolute_path = self.directory_tree.get_path(node)
+        self.directory_tree.remove(absolute_path)
+        return "200 File deleted"
+
+    
+    def ftp_rmdir(self, path):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.directory_tree.get_node(path, node = self.node)
+        if node is None:
+            return "550 Directory not found"
+        if not isinstance(node, DirectoryNode):
+            return "550 Not a directory"
+        if not node.verify_permission(self.user, "write"):
+            return "550 Permission denied"
+        self._deallocate_chunks(node)
+        absolute_path = self.directory_tree.get_path(node)
+        self.directory_tree.remove(absolute_path)
+        return "200 Directory deleted"
     

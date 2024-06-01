@@ -58,7 +58,7 @@ class User:
     @staticmethod
     def get_root(users):
         for user in users:
-            if user.privilage == User.ROOT:
+            if user.privilege == User.ROOT:
                 return user
         return None
     
@@ -66,6 +66,7 @@ class User:
     def save_users(users, path):
         with open(path, "w") as file:
             json.dump([user.to_dict() for user in users], file, indent=4)
+        print("User: saved to", path)
     
     @staticmethod
     def load_users(path):

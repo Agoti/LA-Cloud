@@ -62,10 +62,13 @@ class FileNode(Node):
     def get_size(self):
         return self.size
     
+    def get_chunks(self):
+        return self.chunks
+    
     def to_dict(self):
         return {
             "name": self.name,
-            "owner": self.owner,
+            "owner": self.owner.to_dict() if self.owner is not None else None,
             "permission": "-" + str(self.permission),
             "chunks": [chunk.to_string() for chunk in self.chunks],
             "chunk_size": self.chunk_size,
@@ -75,7 +78,9 @@ class FileNode(Node):
     
     @staticmethod
     def from_dict(dict):
-        file_node = FileNode(dict["name"], dict["owner"], dict["chunk_size"])
+        name = dict["name"]
+        owner = User.from_dict(dict["owner"])
+        file_node = FileNode(name, owner, dict["chunk_size"])
         file_node.set_permission(dict["permission"])
         for chunk in dict["chunks"]:
             file_node.add_chunk(ChunkHandle.from_string(chunk))

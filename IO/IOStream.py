@@ -47,7 +47,7 @@ class Answer:
         if method == 'socket':
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.bind((kwargs['host'], kwargs['port']))
-            self.socket.settimeout(5)
+            self.socket.settimeout(1)
             self.socket.listen(5)
             print(f"Answer: Listening on {kwargs['host']}:{kwargs['port']}")
         elif method == 'zeromq':

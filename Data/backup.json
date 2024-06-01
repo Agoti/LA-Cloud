@@ -35,6 +35,19 @@
                     "permission": "drwxr-xr--",
                     "children": [
                         {
+                            "name": "foo",
+                            "owner": {
+                                "name": "admin",
+                                "encrypted_password": "21232f297a57a5a743894a0e4a801fc3",
+                                "groups": [
+                                    "admin"
+                                ],
+                                "privilage": "root"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": []
+                        },
+                        {
                             "name": "file1.txt",
                             "owner": {
                                 "name": "admin",

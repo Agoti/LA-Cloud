@@ -21,16 +21,23 @@ class MasterServer:
         while True:
             try:
                 iostream = self.answer.accept()
+                client_thread = MSThread(iostream, self.directory_tree, self.users)
+                self.clients.append(client_thread)
+                client_thread.start()
             except socket.timeout:
                 continue
-            client_thread = MSThread(iostream, self.directory_tree, self.users)
-            self.clients.append(client_thread)
-            client_thread.start()
+            except Exception as e:
+                print(f"MasterServer: Error: {e}")
+                break
     
     def stop(self):
         self.answer.close()
+        self.directory_tree.save_tree("Data/tree.json")
+        User.save_users(self.users, "Data/users.json")
     
 if __name__ == "__main__":
     master_server = MasterServer()
-    master_server.start()
-    master_server.stop()
+    try:
+        master_server.start()
+    except KeyboardInterrupt:
+        master_server.stop()
