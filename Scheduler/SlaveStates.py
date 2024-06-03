@@ -6,8 +6,8 @@ class PiState:
     def __init__(self, pi_name: str):
         self.pi_name = pi_name
         self.capacity = None
-        self.message_queue1 = queue.Queue()
-        self.message_queue2 = queue.Queue()
+        self.message_queue_c2s = queue.Queue()
+        self.message_queue_s2c = queue.Queue()
 
 class SlaveStates:
 
@@ -15,7 +15,8 @@ class SlaveStates:
         self.states = []
 
     def add_state(self, pi_name: str):
-        self.states.append(PiState(pi_name))
+        if pi_name not in self.get_pi_names():
+            self.states.append(PiState(pi_name))
     
     def get_state(self, pi_name: str) -> PiState:
         for state in self.states:
@@ -23,16 +24,27 @@ class SlaveStates:
                 return state
         return None
     
-    def get_message(self, pi_name: str):
+    def get_message_client(self, pi_name: str):
         state = self.get_state(pi_name)
         if state is not None:
-            return state.message_queue1.get()
+            return state.message_queue_s2c.get()
         return None
     
-    def put_message(self, pi_name: str, message: str):
+    def put_message_client(self, pi_name: str, message: str):
         state = self.get_state(pi_name)
         if state is not None:
-            state.message_queue2.put(message)
+            state.message_queue_c2s.put(message)
+        
+    def get_message_slave(self, pi_name: str):
+        state = self.get_state(pi_name)
+        if state is not None:
+            return state.message_queue_c2s.get()
+        return None
+    
+    def put_message_slave(self, pi_name: str, message: str):
+        state = self.get_state(pi_name)
+        if state is not None:
+            state.message_queue_s2c.put(message)
 
     def set_capacity(self, pi_name: str, capacity: int):
         state = self.get_state(pi_name)

@@ -6,18 +6,21 @@ from DirectoryTree.Node import FileNode, DirectoryNode
 from DirectoryTree.ChunkHandle import ChunkHandle
 from User.Cipher import MD5Cipher
 from IO.IOStream import IOStream
+from Scheduler.Scheduler import Scheduler
 
 class MCThread(threading.Thread):
         
     def __init__(self,
                 io_stream: IOStream,
                 directory_tree: DirectoryTree,
-                users: list):
+                users: list, 
+                scheduler: Scheduler):
         threading.Thread.__init__(self)
         self.io_stream = io_stream
 
         self.directory_tree = directory_tree
         self.users = users
+        self.scheduler = scheduler
 
         self.state = "init"
 
@@ -29,14 +32,16 @@ class MCThread(threading.Thread):
         while True:
             try:
                 data = self.io_stream.receive()
-                print(f"MSThread: Received data: {data}")
+                print(f"MCThread: Received data: {data}")
                 response = self.process_data(data)
                 self.io_stream.send(response)
-                print(f"MSThread: Sent data: {response}")
+                print(f"MCThread: Sent data: {response}")
                 if response == "221 Goodbye":
                     break
             except Exception as e:
-                print(f"MSThread: Error: {e}")
+                print(f"MCThread: Error: {e}")
+                import traceback
+                traceback.print_exc()
                 self.io_stream.send("500 Internal server error")
                 break
 
@@ -174,7 +179,14 @@ class MCThread(threading.Thread):
             return "550 Not a file"
         if not node.verify_permission(self.user, "read"):
             return "550 Permission denied"
-        return "200 \n" + "\n".join([chunk.to_string() for chunk in node.chunks])
+        
+        response_builder = "200 \n"
+        for backup in node.chunks:
+            response_builder = "Backup: " + str(backup) + "\n"
+            for chunk in node.chunks[backup]:
+                response_builder += chunk.to_string() + "\n"
+
+        return response_builder
     
     def ftp_stor(self, path, size):
         if self.state != "password":
@@ -185,11 +197,19 @@ class MCThread(threading.Thread):
         parent = self.directory_tree.get_node(path, node = self.node, get_parent = True)
         if not parent.verify_permission(self.user, "write"):
             return "550 Permission denied"
-        chunks = self._allocate_chunks(size)
         absolute_path = self.directory_tree.get_path(parent) + "/" + path.split("/")[-1]
+        chunks = self.scheduler.allocate_chunks(size, absolute_path)
+        self.scheduler.allocate_request(chunks)
         print(f"ftp_stor: absolute_path: {absolute_path}")
         self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunks, 10)
-        return "200 \n" + "\n".join([chunk.to_string() for chunk in chunks])
+        
+        response_builder = "200 \n"
+        for backup in chunks:
+            response_builder = "Backup: " + str(backup) + "\n"
+            for chunk in chunks[backup]:
+                response_builder += chunk.to_string() + "\n"
+        
+        return response_builder
     
     def _allocate_chunks(self, size):
         n_chunks = size // 10
@@ -204,8 +224,10 @@ class MCThread(threading.Thread):
     
     def _deallocate_chunks(self, node):
         if isinstance(node, FileNode):
-            for chunk in node.chunks:
-                print(f"Deallocating chunk: {str(chunk)}")
+            self.scheduler.deallocate_request(node.chunks)
+            # for chunk in node.chunks:
+            #     # print(f"Deallocating chunk: {str(chunk)}")
+            #     self.scheduler.deallocate_request(chunk)
         elif isinstance(node, DirectoryNode):
             for child in node.children:
                 self._deallocate_chunks(child)

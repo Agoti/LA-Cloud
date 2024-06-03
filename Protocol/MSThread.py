@@ -8,34 +8,48 @@ class MSThread(threading.Thread):
 
     def __init__(self, scheduler: Scheduler, io_stream: IOStream):
         threading.Thread.__init__(self)
+
         self.scheduler = scheduler
         self.io_stream = io_stream
-
         self.pi_name = None
+        self.debug = True
+    
+    def debug_print(self, message: str):
+        if self.debug:
+            print(message)
     
     def run(self):
         try:
             self.io_stream.send("Request")
+            self.debug_print(f"MSThread {self.getName()}: Request sent")
             data = self.io_stream.receive()
             self.process_recv(data)
+            self.debug_print(f"MSThread: data: {data}")
             while True:
-                message = self.scheduler.get_message(self.pi_name)
+                message = self.scheduler.get_message_slave(self.pi_name)
+                self.debug_print(f"MSThread: message: {message}")
                 data_send = self.process_send(message)
                 self.io_stream.send(data_send)
                 response = self.io_stream.receive()
                 message = self.process_recv(response)
-                self.scheduler.put_message(self.pi_name, message)
+                self.scheduler.put_message_slave(self.pi_name, message)
+                self.debug_print(f"MSThread: response: {response}")
 
         except Exception as e:
             print(f"MSThread: Error: {e}")
-            self.io_stream.send("500 Internal server error")
+            # Print Backtrace
+            import traceback
+            traceback.print_exc()
     
     def process_recv(self, data: str) -> str:
         
-        # PI_NAME:pi_name, CAPACITY:capacity
+        # PI_NAME:pi_name CAPACITY:capacity
         if data.startswith("PI_NAME:"):
-            self.pi_name = data.split(":")[1]
-            self.scheduler.set_capacity(self.pi_name, int(data.split(":")[3]))
+            self.pi_name = data.split(" ")[0].split(":")[1]
+            self.scheduler.add_pi(self.pi_name)
+            self.scheduler.set_capacity(self.pi_name, int(data.split(" ")[1].split(":")[1]))
+            if self.debug:
+                self.scheduler._print_state()
             return "200 OK"
         elif data == "ACK":
             return "200 OK"
@@ -47,11 +61,11 @@ class MSThread(threading.Thread):
         # allocate: pi_name, chunks
         # deallocate: pi_name, chunks
 
-        if message.startswith("allocate"):
-            response = f"ALLOCATE: {self.pi_name},{message.split(':')[1]}"
-        elif message.startswith("deallocate"):
-            response = f"DEALLOCATE: {self.pi_name},{message.split(':')[1]}"
+        if message.lower().startswith("allocate"):
+            response = message
+        elif message.lower().startswith("deallocate"):
+            response = message
         else:
             response = "BAD MESSAGE"
         
-        response = f"{response}"
+        return response

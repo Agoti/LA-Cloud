@@ -107,8 +107,7 @@ class DirectoryTree:
             current = current.get_child(name)
         file_node = FileNode(path.split("/")[-1], owner, chunk_size)
         file_node.set_permission(permission)
-        for chunk in chunks:
-            file_node.add_chunk(chunk)
+        file_node.set_chunks(chunks)
         current.add_child(file_node)
 
         return file_node

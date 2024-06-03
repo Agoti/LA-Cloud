@@ -17,15 +17,19 @@ class Scheduler:
         if self.debug:
             print(message)
 
-    def get_message(self, pi_name: str):
-        self.lock.acquire()
-        message = self.slave_states.get_message(pi_name)
-        self.lock.release()
+    def get_message_client(self, pi_name: str):
+        message = self.slave_states.get_message_client(pi_name)
+        return message
     
-    def put_message(self, pi_name: str, message: str):
-        self.lock.acquire()
-        self.slave_states.put_message(pi_name, message)
-        self.lock.release()
+    def put_message_client(self, pi_name: str, message: str):
+        self.slave_states.put_message_client(pi_name, message)
+    
+    def get_message_slave(self, pi_name: str):
+        message = self.slave_states.get_message_slave(pi_name)
+        return message
+
+    def put_message_slave(self, pi_name: str, message: str):
+        self.slave_states.put_message_slave(pi_name, message)
     
     def add_pi(self, pi_name: str):
         self.lock.acquire()
@@ -99,7 +103,27 @@ class Scheduler:
         return chunk_handles
     
     def _print_state(self):
-        self.lock.acquire()
         print(str(self.slave_states))
+    
+    def allocate_request(self, chunk_handles: dict):
+        self.lock.acquire()
+        message_builder = "ALLOCATE:\n"
+        for i in range(self.n_backups):
+            if i in chunk_handles:
+                for j in range(len(chunk_handles[i])):
+                    pi_name = chunk_handles[i][j].location
+                    message_builder += f"{chunk_handles[i][j]}\n"
+        self.put_message_client(pi_name, message_builder)
+        self.lock.release()
+    
+    def deallocate_request(self, chunk_handles: dict):
+        self.lock.acquire()
+        message_builder = "DEALLOCATE:\n"
+        for i in range(self.n_backups):
+            if i in chunk_handles:
+                for j in range(len(chunk_handles[i])):
+                    pi_name = chunk_handles[i][j].location
+                    message_builder += f"{chunk_handles[i][j]}\n"
+        self.put_message_client(pi_name, message_builder)
         self.lock.release()
                     

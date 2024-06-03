@@ -52,12 +52,19 @@ class FileNode(Node):
     def permission_string(self):
         return "-" + str(self.permission)
     
-    def add_chunk(self, chunk):
-        assert isinstance(chunk, ChunkHandle), "chunk must be of type ChunkHandle"
-        assert chunk.size <= self.chunk_size, "chunk size must be less than or equal to chunk_size"
-        self.chunks.append(chunk)
-        self.size += chunk.size
-        self.occupied += self.chunk_size
+    # def add_chunk(self, chunk):
+    #     assert isinstance(chunk, ChunkHandle), "chunk must be of type ChunkHandle"
+    #     assert chunk.size <= self.chunk_size, "chunk size must be less than or equal to chunk_size"
+    #     self.chunks.append(chunk)
+    #     self.size += chunk.size
+    #     self.occupied += self.chunk_size
+
+    def set_chunks(self, chunks):
+        self.chunks = chunks
+        for backup in chunks:
+            for chunk in chunks[backup]:
+                self.size += chunk.size
+                self.occupied += self.chunk_size
     
     def get_size(self):
         return self.size
