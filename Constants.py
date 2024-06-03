@@ -1,0 +1,3 @@
+
+CHUNK_SIZE = 10
+N_BACKUPS = 2

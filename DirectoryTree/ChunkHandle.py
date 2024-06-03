@@ -7,6 +7,12 @@ class ChunkHandle:
         self.fingerprint = fingerprint
         self.size = size
     
+    def __str__(self):
+        return self.to_string()
+
+    def __repr__(self): 
+        return self.to_string()
+    
     def to_string(self):
         return '(' + self.location + ', ' + self.name + ', ' + self.fingerprint + ', ' + str(self.size) + ')'
     
