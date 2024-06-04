@@ -1,0 +1,28 @@
+[
+    {
+        "name": "admin",
+        "encrypted_password": "21232f297a57a5a743894a0e4a801fc3",
+        "groups": [
+            "admin"
+        ],
+        "privilage": "root"
+    },
+    {
+        "name": "lmx",
+        "encrypted_password": "dcc77169f507c60b9e778c37a2738560",
+        "groups": [
+            "thu",
+            "lmx"
+        ],
+        "privilage": "user"
+    },
+    {
+        "name": "alpt",
+        "encrypted_password": "e52c76f6020163485b219f353846b982",
+        "groups": [
+            "thu",
+            "alpt"
+        ],
+        "privilage": "user"
+    }
+]
