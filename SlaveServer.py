@@ -9,7 +9,8 @@ from Constants import *
 class Slave:
 
     def __init__(self, 
-                 ip = "localhost", 
+                 slave_ip = "localhost", 
+                 master_ip = "localhost",
                  master_port = 9998, 
                  client_port = 9997,
                  name = "pi1", 
@@ -17,7 +18,8 @@ class Slave:
                  disk_space = 1000):
         
         self.name = name
-        self.master_knock = Knock(method = 'socket', host = ip, port = master_port)
+        print("ip: " + master_ip + ", port " + str(master_port))
+        self.master_knock = Knock(method = 'socket', host = master_ip, port = master_port)
         self.master_io = self.master_knock.knock()
         self.msg_running = True
         self.ping_running = True
@@ -25,7 +27,7 @@ class Slave:
         # self.ping_thread = threading.Thread(target = self.slave_ping_start, daemon=True)
         self.client_thread = threading.Thread(target = self.handle_client, daemon=True)
 
-        self.client_answer = Answer(method = 'socket', host = ip, port = client_port)
+        self.client_answer = Answer(method = 'socket', host = slave_ip, port = client_port)
         self.clients = []
 
         self.capicity = 0
@@ -140,7 +142,8 @@ if __name__ == "__main__":
     import sys, os
     name = sys.argv[1]
     slave = Slave(name=name,
-                  ip=SLAVE_IP_PORT[name]["ip"],
+                  master_ip=MASTER_IP, 
+                  slave_ip=SLAVE_IP_PORT[name]["ip"],
                   master_port=MASTER_SLAVE_PORT, 
                   client_port=SLAVE_IP_PORT[name]["port"],
                   path=DISK[name]["path"],
