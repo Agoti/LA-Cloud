@@ -31,7 +31,7 @@ class Client2Master:
         return True
     
     # Function to execute the orders
-    def orders(self, order: str):
+    def commands(self, order: str):
         order_ls = order.split()
         if len(order_ls) == 0:
             self.print_record("Invalid order", False)
