@@ -4,23 +4,33 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import filedialog
-import os
-import time
-import threading
-import socket
-import json
+from tkinter import simpledialog
 from tkinter import ttk
+from IO.IOStream import *
+from Constants import *
 
 # 定义一个界面类
 class Cloud_GUI:
-    def __init__(self):
+    def __init__(self, host: str, port: int):
         self.window = tk.Tk()
         self.window.title('云盘客户端')
         self.window.geometry('800x600')
         self.window.resizable(0, 0)
-        self.server_ip = '101.200.241.54'
-        self.server_port = 8888
+
+        self.host = host
+        self.port = port
+        self.io_stream = Knock(method='socket', host=host, port=port).knock()
+    
+    def send(self, data):
+        self.io_stream.send(data)
+    
+    def recv(self):
+        return self.io_stream.receive()
+
+    def close(self):
+        self.io_stream.close()
+
+
 
     # 创建登录界面
     def create_login(self):
@@ -40,29 +50,17 @@ class Cloud_GUI:
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        """
-        # 创建一个socket
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # 连接服务器
-        self.client_socket.connect((self.server_ip, self.server_port))
-        # 发送登录请求
-        login_info = {
-            'type': 'login',
-            'username': username,
-            'password': password
-        }
-        self.client_socket.send(json.dumps(login_info).encode())
-        # 接收服务器返回的登录结果
-        result = self.client_socket.recv(1024).decode()
-        """
-        result = 'success'
-        if result == 'success':
+        self.send('user' + ' ' + username)
+        usr_response = self.recv()
+        self.send('pass' + ' ' + password)
+        pwd_response = self.recv()
+        if usr_response.startswith('331') and pwd_response.startswith('230'):
             # 登录成功，创建主界面
             self.create_main()
             # 关闭登录界面
             self.login_frame.destroy()
         else:
-            messagebox.showinfo('登录失败', '用户名或密码错误！')
+            messagebox.showinfo("Error", usr_response+'\n'+pwd_response)
 
         
     # 创建主界面
@@ -88,6 +86,20 @@ class Cloud_GUI:
         self.refresh()  
     
     def refresh(self):
+        self.send('ls')
+        ls_response = self.recv().split('\n')
+        print(ls_response)
+        if ls_response[0].startswith('200'):
+            ls_response[0] = '..'
+            file_list = ls_response
+            # 将文件列表显示在界面上
+            self.file_listbox.delete(0, tk.END)
+            for file in file_list:
+                self.file_listbox.insert(tk.END, file)
+                print(file)
+        else :
+            messagebox.showinfo("Error", ls_response)
+        
         pass
 
     def upload(self):
@@ -100,14 +112,32 @@ class Cloud_GUI:
         pass
     
     def create_folder(self):
+        # 弹出一个对话框，获取新建文件夹的名字
+        folder_name = simpledialog.askstring('新建文件夹', '请输入文件夹名字')
+        self.send('mkdir' + ' ' + folder_name)
+        mkdir_response = self.recv()
+        if mkdir_response.startswith('257'):
+            # 将新添加的目录显示在界面上
+            self.refresh()
+        else:
+            messagebox.showinfo("Error", mkdir_response)
         pass
 
-    def open_folder(self):
+    def open_folder(self, event):
+        # 获取当前选中的文件名
+        selected_file = self.file_listbox.get(self.file_listbox.curselection())
+        self.send('cd' + ' ' + selected_file)
+        cd_response = self.recv()
+        if cd_response.startswith('250'):
+            # 进入文件夹成功，刷新文件列表
+            self.refresh()
+        else:
+            messagebox.showinfo("Error", cd_response)
         pass
 
     
 
 if __name__ == '__main__':
-    cloud_gui = Cloud_GUI()
+    cloud_gui = Cloud_GUI(MASTER_IP, MASTER_CLIENT_PORT)
     cloud_gui.create_login()
     cloud_gui.window.mainloop()

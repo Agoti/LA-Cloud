@@ -61,7 +61,65 @@
                         "privilage": "user"
                     },
                     "permission": "drwxr-xr--",
-                    "children": []
+                    "children": [
+                        {
+                            "name": "alpt",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": [
+                                {
+                                    "name": "ashfhalshf",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "drwxr-xr--",
+                                    "children": []
+                                }
+                            ]
+                        },
+                        {
+                            "name": "lmx",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": []
+                        },
+                        {
+                            "name": "my_file",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": []
+                        }
+                    ]
                 }
             ]
         }
