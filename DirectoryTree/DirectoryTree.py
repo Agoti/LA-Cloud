@@ -51,6 +51,9 @@ class DirectoryTree:
         # path = "/a/b/c"
         # returns node at path "/a/b/c"
 
+        if not path:
+            return node
+
         # Absolute path
         if path[0] == "/":
             current = self.root

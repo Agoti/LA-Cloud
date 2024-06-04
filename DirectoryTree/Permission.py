@@ -56,7 +56,7 @@ class Permission:
 
         if owner == user:
             return self.permission[Permission.OWNER][operation]
-        elif user in owner.groups:
+        elif any([group in owner.groups for group in user.groups]):
             return self.permission[Permission.GROUP][operation]
         else:
             return self.permission[Permission.OTHERS][operation]
