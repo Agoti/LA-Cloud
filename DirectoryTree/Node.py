@@ -73,11 +73,14 @@ class FileNode(Node):
         return self.chunks
     
     def to_dict(self):
+        chunks_dict = {}
+        for backup in self.chunks:
+            chunks_dict[backup] = [chunk.to_string() for chunk in self.chunks[backup]]
         return {
             "name": self.name,
             "owner": self.owner.to_dict() if self.owner is not None else None,
             "permission": "-" + str(self.permission),
-            "chunks": [chunk.to_string() for chunk in self.chunks],
+            "chunks": chunks_dict, 
             "chunk_size": self.chunk_size,
             "size": self.size,
             "occupied": self.occupied
@@ -89,8 +92,9 @@ class FileNode(Node):
         owner = User.from_dict(dict["owner"])
         file_node = FileNode(name, owner, dict["chunk_size"])
         file_node.set_permission(dict["permission"])
-        for chunk in dict["chunks"]:
-            file_node.add_chunk(ChunkHandle.from_string(chunk))
+        for backup in dict["chunks"]:
+            for chunk in dict["chunks"][backup]:
+                file_node.add_chunk(ChunkHandle.from_string(chunk))
         file_node.size = dict["size"]
         file_node.occupied = dict["occupied"]
         return file_node

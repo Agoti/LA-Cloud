@@ -86,6 +86,7 @@ class Scheduler:
             self.debug_print(f"pi_list: {pi_list}")
             
             chunk_cnt = 0
+            file_path = file_path.replace("/", "_")
             for pi_name, n_chunk in pi_list:
                 for _ in range(n_chunk):
                     chunk_handle = ChunkHandle(

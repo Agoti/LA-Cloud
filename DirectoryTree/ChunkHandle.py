@@ -13,6 +13,9 @@ class ChunkHandle:
     def __repr__(self): 
         return self.to_string()
     
+    def __eq__(self, other: 'ChunkHandle'):
+        return self.to_string() == other.to_string()
+    
     def to_string(self):
         return '(' + self.location + ', ' + self.name + ', ' + self.fingerprint + ', ' + str(self.size) + ')'
     
@@ -21,3 +24,11 @@ class ChunkHandle:
         string = string[1:-1]
         parts = string.split(', ')
         return ChunkHandle(parts[0], parts[1], parts[2], int(parts[3]))
+    
+    @staticmethod
+    def validate_string(string):
+        try:
+            ChunkHandle.from_string(string)
+            return True
+        except:
+            return False

@@ -26,3 +26,13 @@ if __name__ == "__main__":
         if data == "quit":
             break
     client.close()
+
+    client2 = RawClient("localhost", 9997)
+    while True:
+        data = input()
+        client2.send(data)
+        response = client2.recv()
+        print(response)
+        if data == "quit":
+            break
+    client2.close()
