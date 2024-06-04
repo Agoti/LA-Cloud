@@ -8,12 +8,16 @@ from ChunkRefs.ChunkRefs import ChunkRefs
 
 if __name__ == "__main__":
 
-    # Test DirectoryTree
-    tree = DirectoryTree()
-    users = User.load_users("Data/users.json")
-    print(users[0].privilege)
-    tree.initialize_tree(users)
-    tree.save_tree("Data/tree.json")
+    # # Test DirectoryTree
+    # tree = DirectoryTree()
+    # users = User.load_users("Data/users.json")
+    # print(users[0].privilege)
+    # tree.initialize_tree(users)
+    # tree.save_tree("Data/tree.json")
+
+    chstr = input()
+    ChunkHandle.from_string(chstr)
+    print(ChunkHandle.validate_string(chstr))
 
     # tree = DirectoryTree.load_tree("Data/tree.json")
     # tree.print_tree()

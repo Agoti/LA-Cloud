@@ -1,4 +1,5 @@
 from DirectoryTree.ChunkHandle import ChunkHandle
+from DirectoryTree.ChunkTable import ChunkTable
 from DirectoryTree.Permission import Permission
 from User.User import User
 
@@ -44,7 +45,7 @@ class FileNode(Node):
 
     def __init__(self, name, owner = None, chunk_size = 1024):
         super().__init__(name, owner)
-        self.chunks = []
+        self.chunk_table = ChunkTable()
         self.chunk_size = chunk_size
         self.size = 0
         self.occupied = 0
@@ -59,28 +60,26 @@ class FileNode(Node):
     #     self.size += chunk.size
     #     self.occupied += self.chunk_size
 
-    def set_chunks(self, chunks):
-        self.chunks = chunks
-        for backup in chunks:
-            for chunk in chunks[backup]:
-                self.size += chunk.size
-                self.occupied += self.chunk_size
+    def set_chunks(self, chunks: ChunkTable | dict):
+        if isinstance(chunks, dict):
+            self.chunk_table = ChunkTable.from_dict(chunks)
+        else:
+            self.chunk_table = chunks
+        self.size = self.chunk_table.get_size()
+        self.occupied = self.chunk_table.get_occupied()
     
     def get_size(self):
         return self.size
     
     def get_chunks(self):
-        return self.chunks
+        return self.chunk_table
     
     def to_dict(self):
-        chunks_dict = {}
-        for backup in self.chunks:
-            chunks_dict[backup] = [chunk.to_string() for chunk in self.chunks[backup]]
         return {
             "name": self.name,
             "owner": self.owner.to_dict() if self.owner is not None else None,
             "permission": "-" + str(self.permission),
-            "chunks": chunks_dict, 
+            "chunks": self.chunk_table.to_dict(),
             "chunk_size": self.chunk_size,
             "size": self.size,
             "occupied": self.occupied
@@ -92,9 +91,7 @@ class FileNode(Node):
         owner = User.from_dict(dict["owner"])
         file_node = FileNode(name, owner, dict["chunk_size"])
         file_node.set_permission(dict["permission"])
-        for backup in dict["chunks"]:
-            for chunk in dict["chunks"][backup]:
-                file_node.add_chunk(ChunkHandle.from_string(chunk))
+        file_node.set_chunks(dict["chunks"])
         file_node.size = dict["size"]
         file_node.occupied = dict["occupied"]
         return file_node

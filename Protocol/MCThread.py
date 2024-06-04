@@ -2,6 +2,7 @@
 import threading
 from User.User import User
 from DirectoryTree.DirectoryTree import DirectoryTree
+from DirectoryTree.ChunkTable import ChunkTable
 from DirectoryTree.Node import FileNode, DirectoryNode
 from DirectoryTree.ChunkHandle import ChunkHandle
 from User.Cipher import MD5Cipher
@@ -156,6 +157,7 @@ class MCThread(threading.Thread):
         return "250 Directory changed to " + self.directory_tree.get_path(self.node)
     
     def ftp_mkdir(self, path):
+
         if self.state != "password":
             return "530 Not logged in"
         node = self.directory_tree.get_node(path, node = self.node)
@@ -164,9 +166,11 @@ class MCThread(threading.Thread):
         parent = self.directory_tree.get_node(path, node = self.node, get_parent = True)
         if not parent.verify_permission(self.user, "write"):
             return "550 Permission denied"
+
         absolute_path = self.directory_tree.get_path(parent) + "/" + path.split("/")[-1]
         print(f"ftp_mkdir: absolute_path: {absolute_path}")
         self.directory_tree.add_directory(absolute_path, self.user, "drwxr-xr--")
+
         return "257 Directory created"
     
     def ftp_retr(self, path):
@@ -181,10 +185,7 @@ class MCThread(threading.Thread):
             return "550 Permission denied"
         
         response_builder = "200 \n"
-        for backup in node.chunks:
-            response_builder = "Backup: " + str(backup) + "\n"
-            for chunk in node.chunks[backup]:
-                response_builder += chunk.to_string() + "\n"
+        response_builder += str(node.chunk_table)
 
         return response_builder
     
@@ -201,13 +202,12 @@ class MCThread(threading.Thread):
         chunks = self.scheduler.allocate_chunks(size, absolute_path)
         self.scheduler.allocate_request(chunks)
         print(f"ftp_stor: absolute_path: {absolute_path}")
-        self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunks, 10)
+
+        chunk_table = ChunkTable.from_dict(chunks)
+        self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunk_table, 10)
         
         response_builder = "200 \n"
-        for backup in chunks:
-            response_builder = "Backup: " + str(backup) + "\n"
-            for chunk in chunks[backup]:
-                response_builder += chunk.to_string() + "\n"
+        response_builder += str(chunk_table)
         
         return response_builder
     
@@ -224,7 +224,7 @@ class MCThread(threading.Thread):
     
     def _deallocate_chunks(self, node):
         if isinstance(node, FileNode):
-            self.scheduler.deallocate_request(node.chunks)
+            self.scheduler.deallocate_request(node.chunk_table.to_dict(ChunkHandle))
             # for chunk in node.chunks:
             #     # print(f"Deallocating chunk: {str(chunk)}")
             #     self.scheduler.deallocate_request(chunk)

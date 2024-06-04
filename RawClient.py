@@ -1,5 +1,6 @@
 import socket
 from IO.IOStream import *
+from Constants import *
 
 class RawClient:
     def __init__(self, host, port):
@@ -17,7 +18,7 @@ class RawClient:
         self.io_stream.close()
 
 if __name__ == "__main__":
-    client = RawClient("localhost", 9999)
+    client = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
     while True:
         data = input()
         client.send(data)
@@ -27,7 +28,7 @@ if __name__ == "__main__":
             break
     client.close()
 
-    client2 = RawClient("localhost", 9997)
+    client2 = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
     while True:
         data = input()
         client2.send(data)

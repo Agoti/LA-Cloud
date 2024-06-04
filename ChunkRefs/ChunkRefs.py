@@ -24,6 +24,13 @@ class ChunkRefs:
         with self.lock:
             self.chunk_refs[chunk_handle.name]["filled"] = True
     
+    def get_filled(self, chunk_name: str):
+        with self.lock:
+            if chunk_name in self.chunk_refs:
+                return self.chunk_refs[chunk_name]["filled"]
+            else:
+                return False
+    
     def to_dict(self):
         with self.lock:
             chunk_refs_dict = {}

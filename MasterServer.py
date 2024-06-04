@@ -12,12 +12,12 @@ from Constants import *
 
 class MasterServer:
 
-    def __init__(self, ip = "localhost", port = 9999):
+    def __init__(self, ip = "localhost", client_port = 9999, slave_port = 9998):
 
-        self.client_answer = Answer(method = 'socket', host = ip, port = port)
+        self.client_answer = Answer(method = 'socket', host = ip, port = client_port)
         self.clients = []
 
-        self.slave_answer = Answer(method = 'socket', host = ip, port = 9998)
+        self.slave_answer = Answer(method = 'socket', host = ip, port = slave_port)
         self.slaves = []
 
         self.directory_tree = DirectoryTree.load_tree("Data/tree.json")
@@ -56,7 +56,7 @@ class MasterServer:
         User.save_users(self.users, "Data/users.json")
     
 if __name__ == "__main__":
-    master_server = MasterServer()
+    master_server = MasterServer(MASTER_IP, MASTER_CLIENT_PORT, MASTER_SLAVE_PORT)
     try:
         threading.Thread(target = master_server.master_client_start, daemon = True).start()
         threading.Thread(target = master_server.master_slave_start, daemon = True).start()

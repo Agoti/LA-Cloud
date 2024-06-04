@@ -31,7 +31,6 @@ class SCThread(threading.Thread):
                 if response:
                     self.io_stream.send(response)
                 if response == "221 Goodbye":
-                    self.io_stream.close()
                     break
 
             except Exception as e:
@@ -41,12 +40,15 @@ class SCThread(threading.Thread):
                 import traceback
                 traceback.print_exc()
                 break
+        
+        self.io_stream.close()
 
     def process(self, data):
 
         if data.startswith("quit"):
             response = "221 Goodbye"
-        if self.state == "stor":
+
+        elif self.state == "stor":
             response = self.ftp_bytes(data)
 
         else:
@@ -119,9 +121,9 @@ class SCThread(threading.Thread):
             return "503 Chunk Handle Mismatch"
         
         with open(os.path.join(self.chunk_path, chunk_handle.name), "rb") as f:
-            data = f.read()
+            data = f.read().decode("utf-8")
         
-        response = f"200 {len(data)}\n {data}"
+        response = f"200 {len(data)}\n{data}"
         return response
 
 

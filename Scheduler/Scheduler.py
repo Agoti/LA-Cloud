@@ -1,12 +1,16 @@
 
 from Scheduler.SlaveStates import SlaveStates
 from DirectoryTree.ChunkHandle import ChunkHandle
+from DirectoryTree.ChunkTable import ChunkTable
+from Constants import *
 import threading
 import random
 
 class Scheduler:
 
-    def __init__(self, chunk_size: int, n_backups: int):
+    def __init__(self, 
+                 chunk_size: int = CHUNK_SIZE,
+                 n_backups: int = N_BACKUPS):
         self.lock = threading.Lock()
         self.slave_states = SlaveStates()
         self.chunk_size = chunk_size
@@ -44,7 +48,7 @@ class Scheduler:
     def _reduce_capacity(self, pi_name: str, size: int):
         self.slave_states.reduce_capacity(pi_name, size)
     
-    def allocate_chunks(self, size: int, file_path: str):
+    def allocate_chunks(self, size: int, file_path: str) -> dict:
 
         n_chunks = size // self.chunk_size + (1 if size % self.chunk_size != 0 else 0)
         allocated = set()
@@ -119,12 +123,17 @@ class Scheduler:
     
     def deallocate_request(self, chunk_handles: dict):
         self.lock.acquire()
-        message_builder = "DEALLOCATE:\n"
+        message_builder = dict()
         for i in range(self.n_backups):
             if i in chunk_handles:
                 for j in range(len(chunk_handles[i])):
                     pi_name = chunk_handles[i][j].location
-                    message_builder += f"{chunk_handles[i][j]}\n"
-        self.put_message_client(pi_name, message_builder)
+                    if pi_name not in message_builder:
+                        message_builder[pi_name] = "DEALLOCATE:\n"
+                    message_builder[pi_name] += f"{chunk_handles[i][j]}\n"
+        
+        for pi_name, message in message_builder.items():
+            self.put_message_client(pi_name, message)
+
         self.lock.release()
                     

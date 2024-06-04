@@ -21,6 +21,9 @@ class User:
     def __repr__(self):
         return self.name
     
+    def __eq__(self, other):
+        return self.name == other.name and self.encrypted_password == other.encrypted_password
+    
     def to_dict(self):
         return {
             "name": self.name,

@@ -33,30 +33,7 @@
                         "privilage": "root"
                     },
                     "permission": "drwxr-xr--",
-                    "children": [
-                        {
-                            "name": "file",
-                            "owner": {
-                                "name": "admin",
-                                "encrypted_password": "21232f297a57a5a743894a0e4a801fc3",
-                                "groups": [
-                                    "admin"
-                                ],
-                                "privilage": "root"
-                            },
-                            "permission": "-rwxr-xr--",
-                            "chunks": {
-                                "0": [
-                                    "(pi1, _home_admin_file_chunk0, 0x381edbd3e39ea00, 10)",
-                                    "(pi1, _home_admin_file_chunk1, 0x12fb801e52238400, 10)",
-                                    "(pi1, _home_admin_file_chunk2, 0x1f1b3a50e21e8a00, 10)"
-                                ]
-                            },
-                            "chunk_size": 10,
-                            "size": 30,
-                            "occupied": 30
-                        }
-                    ]
+                    "children": []
                 },
                 {
                     "name": "lmx",

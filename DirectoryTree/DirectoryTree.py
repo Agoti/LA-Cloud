@@ -3,6 +3,7 @@ from User.User import User
 from DirectoryTree.Node import DirectoryNode, FileNode
 from DirectoryTree.Permission import Permission
 from DirectoryTree.ChunkHandle import ChunkHandle
+from DirectoryTree.ChunkTable import ChunkTable
 
 class DirectoryTree:
 
@@ -94,7 +95,7 @@ class DirectoryTree:
                  path: str,         # Assume path is absolute 
                  owner: str, 
                  permission: str,
-                 chunks: list, 
+                 chunks: ChunkTable, 
                  chunk_size: int):
         # path = "/a/b/c"
         # chunks = [ChunkHandle("a", "a", "a", 1), ChunkHandle("b", "b", "b", 2)]

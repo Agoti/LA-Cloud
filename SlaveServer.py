@@ -4,13 +4,20 @@ from IO.IOStream import Knock, Answer, IOStream
 from Protocol.SCThread import SCThread
 from DirectoryTree.ChunkHandle import ChunkHandle
 from ChunkRefs.ChunkRefs import ChunkRefs
+from Constants import *
 
 class Slave:
 
-    def __init__(self, ip = "localhost", port = 9998, name = "pi1", path = "."):
+    def __init__(self, 
+                 ip = "localhost", 
+                 master_port = 9998, 
+                 client_port = 9997,
+                 name = "pi1", 
+                 path = ".",
+                 disk_space = 1000):
         
         self.name = name
-        self.master_knock = Knock(method = 'socket', host = ip, port = port)
+        self.master_knock = Knock(method = 'socket', host = ip, port = master_port)
         self.master_io = self.master_knock.knock()
         self.msg_running = True
         self.ping_running = True
@@ -18,7 +25,7 @@ class Slave:
         # self.ping_thread = threading.Thread(target = self.slave_ping_start, daemon=True)
         self.client_thread = threading.Thread(target = self.handle_client, daemon=True)
 
-        self.client_answer = Answer(method = 'socket', host = ip, port = 9997)
+        self.client_answer = Answer(method = 'socket', host = ip, port = client_port)
         self.clients = []
 
         self.capicity = 0
@@ -100,12 +107,16 @@ class Slave:
         self.master_io.send("ACK")
     
     def deallocate(self, data: str):
+
         chunks = data.split('\n')[1:-1]
         for chunk in chunks:
             chunk = ChunkHandle.from_string(chunk)
-            self.chunk_refs.remove_chunk(chunk)
+
             # Remove chunk from disk
-            os.remove(os.path.join(self.chunk_path, chunk.name))
+            if self.chunk_refs.get_filled(chunk.name):
+                os.remove(os.path.join(self.chunk_path, chunk.name))
+
+            self.chunk_refs.remove_chunk(chunk)
             self.virtual_disk_space += chunk.size
             print(f"Slave: Deallocated: {chunk}")
         self.master_io.send("ACK")
@@ -127,7 +138,13 @@ class Slave:
 
 if __name__ == "__main__":
     import sys, os
-    slave = Slave(name=sys.argv[1], path=os.path.join("VirtualDisk", sys.argv[1]))
+    name = sys.argv[1]
+    slave = Slave(name=name,
+                  ip=SLAVE_IP_PORT[name]["ip"],
+                  master_port=MASTER_SLAVE_PORT, 
+                  client_port=SLAVE_IP_PORT[name]["port"],
+                  path=DISK[name]["path"],
+                  disk_space=DISK[name]["capacity"])
     import time
     try:
         slave.start()
