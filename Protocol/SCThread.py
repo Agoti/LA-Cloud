@@ -119,6 +119,8 @@ class SCThread(threading.Thread):
             return "503 Chunk Handle Not Allocated"
         elif chunk_handle != self.chunk_refs.chunk_refs[chunk_handle.name]["chunk_handle"]:
             return "503 Chunk Handle Mismatch"
+        elif not self.chunk_refs.get_filled(chunk_handle.name):
+            return "204 Empty Chunk"
         
         with open(os.path.join(self.chunk_path, chunk_handle.name), "rb") as f:
             data = f.read().decode("utf-8")
