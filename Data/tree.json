@@ -100,7 +100,22 @@
                                                 "privilage": "user"
                                             },
                                             "permission": "drwxr-xr--",
-                                            "children": []
+                                            "children": [
+                                                {
+                                                    "name": "\u5218\u9e23\u9704",
+                                                    "owner": {
+                                                        "name": "alpt",
+                                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                                        "groups": [
+                                                            "thu",
+                                                            "alpt"
+                                                        ],
+                                                        "privilage": "user"
+                                                    },
+                                                    "permission": "drwxr-xr--",
+                                                    "children": []
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
