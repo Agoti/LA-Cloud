@@ -112,13 +112,20 @@ class Scheduler:
     
     def allocate_request(self, chunk_handles: dict):
         self.lock.acquire()
-        message_builder = "ALLOCATE:\n"
+        # message_builder = "ALLOCATE:\n"
+        message_builder = dict()
         for i in range(self.n_backups):
             if i in chunk_handles:
                 for j in range(len(chunk_handles[i])):
                     pi_name = chunk_handles[i][j].location
-                    message_builder += f"{chunk_handles[i][j]}\n"
-        self.put_message_client(pi_name, message_builder)
+                    # message_builder += f"{chunk_handles[i][j]}\n"
+                    if pi_name not in message_builder:
+                        message_builder[pi_name] = "ALLOCATE:\n"
+                    message_builder[pi_name] += f"{chunk_handles[i][j]}\n"
+
+        # self.put_message_client(pi_name, message_builder)
+        for pi_name, message in message_builder.items():
+            self.put_message_client(pi_name, message)
         self.lock.release()
     
     def deallocate_request(self, chunk_handles: dict):
