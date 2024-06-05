@@ -61,7 +61,88 @@
                         "privilage": "user"
                     },
                     "permission": "drwxr-xr--",
-                    "children": []
+                    "children": [
+                        {
+                            "name": "alpt",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": [
+                                {
+                                    "name": "ashfhalshf",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "drwxr-xr--",
+                                    "children": [
+                                        {
+                                            "name": "newfile",
+                                            "owner": {
+                                                "name": "alpt",
+                                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                                "groups": [
+                                                    "thu",
+                                                    "alpt"
+                                                ],
+                                                "privilage": "user"
+                                            },
+                                            "permission": "drwxr-xr--",
+                                            "children": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "lmx",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": []
+                        },
+                        {
+                            "name": "md.txt",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "-rwxr-xr--",
+                            "chunks": {
+                                "0": [
+                                    "(pi1, _home_alpt_md.txt_chunk0, 0x15936fa9b59cfc00, 10)",
+                                    "(pi1, _home_alpt_md.txt_chunk1, 0x50b6ce5e8709300, 10)"
+                                ]
+                            },
+                            "chunk_size": 10,
+                            "size": 20,
+                            "occupied": 20
+                        }
+                    ]
                 }
             ]
         }
