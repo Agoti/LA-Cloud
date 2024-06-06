@@ -31,7 +31,7 @@ class Slave:
         self.clients = []
 
         self.capicity = 0
-        self.virtual_disk_space = 1000
+        self.virtual_disk_space = disk_space
 
         self.chunk_refs = ChunkRefs()
         self.chunk_path = path

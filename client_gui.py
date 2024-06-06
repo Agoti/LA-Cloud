@@ -8,7 +8,7 @@ from RawClient import RawClient
 
 BLOCK_SIZE = 10
 
-class Cloud_GUI:
+class Cloud_GUI(RawClient):
     def __init__(self):
         self.window = tk.Tk()
         self.window.title('云盘客户端')
@@ -25,9 +25,12 @@ class Cloud_GUI:
 
         self.selected_file = None
         # 加载并缩放文件夹图标
-        self.folder_icon_image = Image.open("Icons/file_icon.png")
+        self.folder_icon_image = Image.open("Icons/folder_icon.png")
         self.folder_icon_image = self.folder_icon_image.resize((25, 25), Image.Resampling.LANCZOS)
         self.folder_icon = ImageTk.PhotoImage(self.folder_icon_image)
+        self.file_icon_image = Image.open("Icons/file_icon.png")
+        self.file_icon_image = self.file_icon_image.resize((25, 25), Image.Resampling.LANCZOS)
+        self.file_icon = ImageTk.PhotoImage(self.file_icon_image)
 
     def create_login(self):
         self.is_login_frame = True
@@ -97,47 +100,49 @@ class Cloud_GUI:
     def on_frame_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
+    def refresh_file_ls(self, file_list):
+        for widget in self.inner_frame.winfo_children():
+                widget.destroy()
+        for file in file_list:
+            if file == '':
+                continue
+
+            if file == self.selected_file:
+                frame = ttk.Frame(self.inner_frame, borderwidth=5, relief="solid")
+            else:
+                frame = ttk.Frame(self.inner_frame, borderwidth=1, relief="solid")
+            frame.pack(fill="x", expand=True, padx=10, pady=5)
+            
+            if ".." in file:
+                icon_label = tk.Label(frame)
+            elif "." in file:
+                icon_label = tk.Label(frame, image=self.file_icon)
+            else:
+                icon_label = tk.Label(frame, image=self.folder_icon)
+            icon_label.pack(side="left")
+
+            text_label = tk.Label(frame, text=file, font=('Arial', 16), anchor='w',width=60, height=1)
+            text_label.pack(side="left", fill="x", expand=True)
+
+            text_label.bind('<Double-Button-1>', lambda e, f=file: self.open_folder(f))
+            icon_label.bind('<Button-1>', lambda e, f=file, fl=file_list: self.select_file(f, fl))
+
     def refresh(self):
         self.client2m.send('ls')
         ls_response = self.client2m.recv().split('\n')
         if ls_response[0].startswith('200'):
             ls_response[0] = '..'
             file_list = ls_response
-            for widget in self.inner_frame.winfo_children():
-                widget.destroy()
-            for file in file_list:
-                if file == '':
-                    continue
-                frame = ttk.Frame(self.inner_frame, borderwidth=1, relief="solid")
-                frame.pack(fill="x", expand=True, padx=10, pady=5)
-                
-                icon_label = tk.Label(frame, image=self.folder_icon)
-                icon_label.pack(side="left")
-
-                text_label = tk.Label(frame, text=file, font=('Arial', 16), anchor='w',width=60, height=1)
-                text_label.pack(side="left", fill="x", expand=True)
-                
-                text_label.bind('<Double-Button-1>', lambda e, f=file: self.open_folder(f))
-                # text_label.bind('<Button-1>', lambda e, f=file, fr=frame: self.select_file(f, fr))
-                # text_label.bind('<Enter>', lambda e, fr=frame: self.on_enter(fr))
-                # text_label.bind('<Leave>', lambda e, fr=frame: self.on_leave(fr))
+        
+            self.refresh_file_ls(file_list)
 
         else:
             messagebox.showinfo("Error", ls_response)
 
-    def select_file(self, file, frame):
-        if self.selected_file:
-            self.selected_file.config(style='TFrame')
-        self.selected_file = frame
-        frame.config(style='Selected.TFrame')
-        self.refresh()
+    def select_file(self, file, file_list):
+        self.selected_file = file
+        self.refresh_file_ls(file_list)
 
-    def on_enter(self, frame):
-        frame.config(style='Hover.TFrame')
-
-    def on_leave(self, frame):
-        if self.selected_file != frame:
-            frame.config(style='TFrame')
 
     def open_folder(self, folder_name):
         self.client2m.send('cd' + ' ' + folder_name)
@@ -149,10 +154,11 @@ class Cloud_GUI:
 
     def upload(self):
         self.client2m.send('pwd')
-        current_folder = self.client2m.recv()
-        if not current_folder.startswith('257'):
+        current_folder = self.client2m.recv().split()
+        if not current_folder[0].startswith('257'):
             messagebox.showinfo("Error", current_folder)
             return
+        current_folder = current_folder[1]
         # 打开本机文件选择对话框
         file_path = filedialog.askopenfilename()
         if not file_path:
@@ -161,22 +167,29 @@ class Cloud_GUI:
         file_size = os.path.getsize(file_path)
         print(file_size)
         # 上传文件
+        file_name = os.path.basename(file_path)
         stor_chunk_list = []
-        self.client2m.send('stor' + ' ' + file_path  + ' ' + str(file_size))
-        stor_response = self.client2m.recv().split('\n')
+        self.client2m.send('stor' + ' ' + file_name  + ' ' + str(file_size))
+        stor_response = ""
+        while True:
+            stor_res = self.client2m.recv()
+            stor_response += stor_res
+            if stor_res.endswith('.*.'):
+                break
+        stor_response = stor_response.split('\n')
         if not stor_response[0].startswith('200'):
             messagebox.showinfo("Error", stor_response)
             return
-        stor_chunk_list = stor_response[2:]
+        stor_chunk_list = stor_response[2:-1]
         self.client2m.send('quit')
         cm_quit_response = self.client2m.recv()
-        if stor_response[0].startswith('221'):
+        if cm_quit_response.startswith('221'):
             # 与从机建立连接
             client2s = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
             client2s.send('hello')
             hello_response = client2s.recv()
             if not hello_response.startswith('200'):
-                messagebox.showinfo("Error", hello_response)
+                messagebox.showinfo("HELLO Error", hello_response)
                 return
             # 上传文件
             with open(file_path, 'rb') as f:
@@ -185,21 +198,21 @@ class Cloud_GUI:
                     client2s.send('stor' + ' ' + chunk)
                     stor_response = client2s.recv()
                     if not stor_response.startswith('300'):
-                        messagebox.showinfo("Error", stor_response)
+                        messagebox.showinfo("STOR Error", stor_response)
                         return
                     client2s.send(data)
                     data_response = client2s.recv()
                     if not data_response.startswith('200'):
-                        messagebox.showinfo("Error", data_response)
+                        messagebox.showinfo("UPLOAD Error", data_response)
                         return
                     client2s.send('quit')
                     quit_response = client2s.recv()
                     if not quit_response.startswith('221'):
-                        messagebox.showinfo("Error", quit_response)
+                        messagebox.showinfo("CS QUIT Error", quit_response)
                         return
             client2s.close()
         else :
-            messagebox.showinfo("Error", cm_quit_response)
+            messagebox.showinfo("CM QUITError", cm_quit_response)
         
         self.client2m = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
         self.login()
@@ -218,20 +231,26 @@ class Cloud_GUI:
             messagebox.showinfo("Error", current_folder)
             return
         # 选择下载文件
-        selected_file = 'md.txt'
+        selected_file = self.selected_file
         if not selected_file:
             messagebox.showinfo("Error", '请选择文件')
             return
         # 打开本地文件存储对话框
         local_file = filedialog.asksaveasfilename(initialfile=selected_file)
-        print(local_file)
+        if not local_file:
+            return
         retr_chunk_list = []
         self.client2m.send('retr' + ' ' + selected_file)
-        retr_response = self.client2m.recv()
+        retr_response = ""
+        while True:
+            retr_res = self.client2m.recv()
+            retr_response += retr_res
+            if retr_res.endswith('.*.'):
+                break
         if not retr_response.startswith('200'):
             messagebox.showinfo("Error", retr_response)
             return
-        retr_chunk_list = retr_response.split('\n')[2:]
+        retr_chunk_list = retr_response.split('\n')[2:-1]
         self.client2m.send('quit')
         cm_quit_response = self.client2m.recv()
         if not cm_quit_response.startswith('221'):
@@ -271,18 +290,18 @@ class Cloud_GUI:
         
 
     def delete(self):
-        selected_file = 'md.txt'
-        FILE = 'md.txt'
+        selected_file = self.selected_file
         if not selected_file:
             messagebox.showinfo("Error", '请选择文件')
             return
         if messagebox.askokcancel("删除文件", "确定要删除文件吗？"):
-            if selected_file is FILE:
-                self.client2m.send('del' + ' ' + selected_file)
-            else:
+            if "." not in selected_file:
                 self.client2m.send('rmdir' + ' ' + selected_file)
+            else:
+                self.client2m.send('del' + ' ' + selected_file)
+                
             dele_response = self.client2m.recv()
-            if dele_response.startswith('250'):
+            if dele_response.startswith('200'):
                 self.refresh()
             else:
                 messagebox.showinfo("Error", dele_response)

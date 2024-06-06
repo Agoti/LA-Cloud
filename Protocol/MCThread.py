@@ -186,7 +186,7 @@ class MCThread(threading.Thread):
         
         response_builder = "200 \n"
         response_builder += str(node.chunk_table)
-
+        response_builder += ".*."
         return response_builder
     
     def ftp_stor(self, path, size):
@@ -208,7 +208,7 @@ class MCThread(threading.Thread):
         
         response_builder = "200 \n"
         response_builder += str(chunk_table)
-        
+        response_builder += ".*."
         return response_builder
     
     def _allocate_chunks(self, size):
