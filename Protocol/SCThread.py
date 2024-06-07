@@ -116,6 +116,7 @@ class SCThread(threading.Thread):
 
         chunk_handle = ChunkHandle.from_string(chunk_handle)
         if chunk_handle.name not in self.chunk_refs.chunk_refs:
+            print('scthread:', chunk_handle.name, self.chunk_refs.chunk_refs)
             return "503 Chunk Handle Not Allocated"
         elif chunk_handle != self.chunk_refs.chunk_refs[chunk_handle.name]["chunk_handle"]:
             return "503 Chunk Handle Mismatch"

@@ -5,8 +5,8 @@ from PIL import Image, ImageTk  # 导入PIL
 from IO.IOStream import *
 from Constants import *
 from RawClient import RawClient
+import base64
 
-BLOCK_SIZE = 10
 
 class Cloud_GUI(RawClient):
     def __init__(self):
@@ -14,6 +14,7 @@ class Cloud_GUI(RawClient):
         self.window.title('云盘客户端')
         self.window.geometry('800x600')
         self.window.resizable(0, 0)
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.client2m = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
 
@@ -66,6 +67,15 @@ class Cloud_GUI(RawClient):
                 self.is_login_frame = False
         else:
             messagebox.showinfo("Error", usr_response + '\n' + pwd_response)
+
+    def on_closing(self):
+        if messagebox.askokcancel("退出", "确定要退出吗？"):
+            self.client2m.send('quit')
+            quit_response = self.client2m.recv()
+            if not quit_response.startswith('221'):
+                messagebox.showinfo("Error", quit_response)
+            self.client2m.close()
+            self.window.destroy()
 
     def create_main(self):
         self.is_main_frame = True
@@ -194,22 +204,23 @@ class Cloud_GUI(RawClient):
             # 上传文件
             with open(file_path, 'rb') as f:
                 for chunk in stor_chunk_list:
-                    data = f.read(BLOCK_SIZE)
+                    data = f.read(CHUNK_SIZE)
                     client2s.send('stor' + ' ' + chunk)
                     stor_response = client2s.recv()
                     if not stor_response.startswith('300'):
                         messagebox.showinfo("STOR Error", stor_response)
                         return
+                    data = base64.b64encode(data).decode(encoding='utf-8')
                     client2s.send(data)
                     data_response = client2s.recv()
                     if not data_response.startswith('200'):
                         messagebox.showinfo("UPLOAD Error", data_response)
                         return
-                    client2s.send('quit')
-                    quit_response = client2s.recv()
-                    if not quit_response.startswith('221'):
-                        messagebox.showinfo("CS QUIT Error", quit_response)
-                        return
+            client2s.send('quit')
+            quit_response = client2s.recv()
+            if not quit_response.startswith('221'):
+                messagebox.showinfo("CS QUIT Error", quit_response)
+                return
             client2s.close()
         else :
             messagebox.showinfo("CM QUITError", cm_quit_response)
@@ -273,7 +284,8 @@ class Cloud_GUI(RawClient):
                     messagebox.showinfo("Error", retr_response)
                     return
                 # NOTE 建议lmx修改下载文件的形式
-                f.write(parts[1])
+                data = base64.b64decode(parts[1].encode(encoding='utf-8'))
+                f.write(data)
         client2s.send('quit')
         quit_response = client2s.recv()
         if not quit_response.startswith('221'):
