@@ -48,15 +48,15 @@ class Slave:
         while self.msg_running:
             try:
                 data = self.master_io.receive().lower()
+                print("Recv")
                 if data.startswith("allocate"):
                     while self.msg_running:
-                        # print('recieving in while loop')
-                        data += self.master_io.receive().lower()
-                        print(f"Slave: Received: {data}")
                         if data.strip().endswith(".*."):
                             print("breaking")
                             break
-                print(f"Slave: Receiving: {data}")
+                        data += self.master_io.receive().lower()
+                        print("while loop")
+                print(f"Slave: Received: {data}")
                 if data.startswith("request"):
                     self.capicity = self.get_disk_space()
                     response = f"PI_NAME:{self.name} CAPACITY:{self.capicity}"

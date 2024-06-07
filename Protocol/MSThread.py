@@ -27,8 +27,8 @@ class MSThread(threading.Thread):
             self.debug_print(f"MSThread: data: {data}")
             while True:
                 message = self.scheduler.get_message_slave(self.pi_name)
-                self.debug_print(f"MSThread: message: {message}")
                 data_send = self.process_send(message)
+                self.debug_print(f"MSThread: send: {data_send}")
                 self.io_stream.send(data_send)
                 response = self.io_stream.receive()
                 message = self.process_recv(response)
@@ -62,9 +62,9 @@ class MSThread(threading.Thread):
         # deallocate: pi_name, chunks
 
         if message.lower().startswith("allocate"):
-            response = message
+            response = message + ".*."
         elif message.lower().startswith("deallocate"):
-            response = message
+            response = message + ".*."
         else:
             response = "BAD MESSAGE"
         

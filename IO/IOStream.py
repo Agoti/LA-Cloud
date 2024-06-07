@@ -78,11 +78,11 @@ class IOStream:
         self.input_stream = InputStream(method, **kwargs)
         self.output_stream = OutputStream(method, **kwargs)
     
-    def send(self, data: str):
-        self.output_stream.send(data)
+    def send(self, data: str | bytes, is_byte = False):
+        self.output_stream.send(data, is_byte)
     
-    def receive(self) -> str:
-        return self.input_stream.receive()
+    def receive(self, is_byte = False) -> str | bytes:
+        return self.input_stream.receive(is_byte)
     
     def close(self):
         self.input_stream.close()
@@ -105,11 +105,14 @@ class OutputStream:
         elif self.method == 'nanomq':
             pass
     
-    def send(self, data: str):
+    def send(self, data: str | bytes, is_byte = False):
         if self.method == 'stdio':
             print(data)
         elif self.method == 'socket':
-            self.socket.send(data.encode("utf-8"))
+            if is_byte:
+                self.socket.send(data)
+            else:
+                self.socket.send(data.encode("utf-8"))
         elif self.method == 'zeromq':
             raise NotImplementedError()
         elif self.method == 'nanomq':
@@ -143,11 +146,14 @@ class InputStream:
         elif self.method == 'nanomq':
             pass
     
-    def receive(self) -> str:
+    def receive(self, is_byte = False) -> str | bytes:
         if self.method == 'stdio':
             data = input()
         elif self.method == 'socket':
-            data = self.socket.recv(1024).decode("utf-8")
+            if is_byte:
+                data = self.socket.recv(1024)
+            else:
+                data = self.socket.recv(1024).decode("utf-8")
         elif self.method == 'zeromq':
             raise NotImplementedError()
         elif self.method == 'nanomq':

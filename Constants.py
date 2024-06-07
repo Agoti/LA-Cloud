@@ -1,5 +1,5 @@
 
-CHUNK_SIZE = 100
+CHUNK_SIZE = 1024
 N_BACKUPS = 2
 
 # MASTER_IP = "localhost"

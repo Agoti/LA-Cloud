@@ -25,12 +25,19 @@ class SCThread(threading.Thread):
     def run(self):
         while True:
             try:
-                data = self.io_stream.receive()
+                if self.state == "stor":
+                    data = self.io_stream.receive(is_byte = True)
+                else:
+                    data = self.io_stream.receive()
+
                 print(f"SCThread: Received: {data}")
                 response = self.process(data)
+
                 if response:
                     print(f"SCThread: Sending: {response}")
-                    self.io_stream.send(response)
+                    self.io_stream.send(response, is_byte = isinstance(response, bytes))
+                else:
+                    self.io_stream.send("500 Empty response")
                 if response == "221 Goodbye":
                     break
 
@@ -44,15 +51,19 @@ class SCThread(threading.Thread):
         
         self.io_stream.close()
 
-    def process(self, data):
+    def process(self, data: str | bytes) -> str | bytes:
 
-        if data.startswith("quit"):
+        if isinstance(data, str) and data.startswith("quit"):
             response = "221 Goodbye"
 
         elif self.state == "stor":
+            if isinstance(data, str):
+                data = data.encode("utf-8")
             response = self.ftp_bytes(data)
 
         else:
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
             if data.startswith("hello"):
                 response = self.ftp_hello()
             elif data.startswith("stor"):
@@ -93,24 +104,21 @@ class SCThread(threading.Thread):
 
         return response
     
-    def ftp_bytes(self, data: str):
-        self.bytes_received += data.encode("utf-8")
+    def ftp_bytes(self, data: bytes):
 
-        if len(self.bytes_received) >= self.chunk_handle.size:
-            with open(os.path.join(self.chunk_path, self.chunk_handle.name), "wb") as f:
-                self.bytes_received = self.bytes_received[:self.chunk_handle.size]
-                f.write(self.bytes_received)
-            
-            self.state = "hello"
-            self.chunk_refs.set_filled(self.chunk_handle)
-            response = "200 Stored" if len(self.bytes_received) == self.chunk_handle.size else "201 Truncated"
+        self.bytes_received = data
+
+        response = "200 Stored" if len(self.bytes_received) <= self.chunk_handle.size else "201 Truncated"
+        with open(os.path.join(self.chunk_path, self.chunk_handle.name), "wb") as f:
+            self.bytes_received = self.bytes_received[:self.chunk_handle.size]
+            f.write(self.bytes_received)
         
-        else:
-            response = None
+        self.state = "hello"
+        self.chunk_refs.set_filled(self.chunk_handle)
         
         return response
     
-    def ftp_retrieve(self, chunk_handle: str):
+    def ftp_retrieve(self, chunk_handle: str) -> bytes:
 
         if self.state != "hello":
             return "503 Bad Sequence"
@@ -125,9 +133,9 @@ class SCThread(threading.Thread):
             return "204 Empty Chunk"
         
         with open(os.path.join(self.chunk_path, chunk_handle.name), "rb") as f:
-            data = f.read().decode("utf-8")
+            data = f.read()
         
-        response = f"200 {len(data)}\n{data}"
+        response = bytes(f"200 {len(data)}\n", "utf-8") + data
         return response
 
 
