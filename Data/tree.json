@@ -61,44 +61,7 @@
                         "privilage": "user"
                     },
                     "permission": "drwxr-xr--",
-                    "children": [
-                        {
-                            "name": "hash",
-                            "owner": {
-                                "name": "alpt",
-                                "encrypted_password": "e52c76f6020163485b219f353846b982",
-                                "groups": [
-                                    "thu",
-                                    "alpt"
-                                ],
-                                "privilage": "user"
-                            },
-                            "permission": "drwxr-xr--",
-                            "children": [
-                                {
-                                    "name": "1001.jpg",
-                                    "owner": {
-                                        "name": "alpt",
-                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
-                                        "groups": [
-                                            "thu",
-                                            "alpt"
-                                        ],
-                                        "privilage": "user"
-                                    },
-                                    "permission": "-rwxr-xr--",
-                                    "chunks": {
-                                        "0": [
-                                            "(pi1, _home_alpt_hash_1001.jpg_chunk0, 0xd7abac573329000, 4194304)"
-                                        ]
-                                    },
-                                    "chunk_size": 10,
-                                    "size": 4194304,
-                                    "occupied": 4194304
-                                }
-                            ]
-                        }
-                    ]
+                    "children": []
                 }
             ]
         }

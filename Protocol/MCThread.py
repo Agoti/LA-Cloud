@@ -184,8 +184,11 @@ class MCThread(threading.Thread):
         if not node.verify_permission(self.user, "read"):
             return "550 Permission denied"
         
+        print(f"ftp_retr: chunk_table:\n {node.chunk_table}")
+        chunk_table = self.scheduler.select_backup(node.chunk_table)
+        
         response_builder = "200 \n"
-        response_builder += str(node.chunk_table)
+        response_builder += str(chunk_table)
         response_builder += ".*."
         return response_builder
     
@@ -207,6 +210,7 @@ class MCThread(threading.Thread):
 
         chunk_table = ChunkTable.from_dict(chunks)
         self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunk_table, 10)
+        print(f"ftp_stor: chunk_table:\n {chunk_table}")
         chunk_table = self.scheduler.select_backup(chunk_table)
         if chunk_table is None:
             return "550 Backup Error"
