@@ -195,6 +195,7 @@ class Cloud_GUI(RawClient):
         cm_quit_response = self.client2m.recv()
         if cm_quit_response.startswith('221'):
             # 与从机建立连接
+            import time; time.sleep(5)
             client2s = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
             client2s.send('hello')
             hello_response = client2s.recv()

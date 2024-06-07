@@ -48,11 +48,20 @@ class Slave:
         while self.msg_running:
             try:
                 data = self.master_io.receive().lower()
-                print(f"Slave: Received: {data}")
+                if data.startswith("allocate"):
+                    while self.msg_running:
+                        # print('recieving in while loop')
+                        data += self.master_io.receive().lower()
+                        print(f"Slave: Received: {data}")
+                        if data.strip().endswith(".*."):
+                            print("breaking")
+                            break
+                print(f"Slave: Receiving: {data}")
                 if data.startswith("request"):
                     self.capicity = self.get_disk_space()
                     response = f"PI_NAME:{self.name} CAPACITY:{self.capicity}"
                 elif data.startswith("allocate"):
+                    print("allocating")
                     self.allocate(data)
                     response = "ACK"
                 elif data.startswith("deallocate"):
@@ -102,17 +111,17 @@ class Slave:
     def allocate(self, data: str):
         chunks = data.split('\n')[1:-1]
         for chunk in chunks:
-            chunk = ChunkHandle.from_string(chunk)
+            chunk = ChunkHandle.from_string(chunk.strip())
             self.virtual_disk_space -= chunk.size
             self.chunk_refs.add_chunk(chunk)
             print(f"Slave: Allocated: {chunk}")
-        self.master_io.send("ACK")
+        # self.master_io.send("ACK")
     
     def deallocate(self, data: str):
 
         chunks = data.split('\n')[1:-1]
         for chunk in chunks:
-            chunk = ChunkHandle.from_string(chunk)
+            chunk = ChunkHandle.from_string(chunk.strip())
 
             # Remove chunk from disk
             if self.chunk_refs.get_filled(chunk.name):
@@ -121,7 +130,7 @@ class Slave:
             self.chunk_refs.remove_chunk(chunk)
             self.virtual_disk_space += chunk.size
             print(f"Slave: Deallocated: {chunk}")
-        self.master_io.send("ACK")
+        # self.master_io.send("ACK")
     
     def get_disk_space(self):
         return self.virtual_disk_space

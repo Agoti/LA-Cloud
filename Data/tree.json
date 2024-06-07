@@ -61,7 +61,486 @@
                         "privilage": "user"
                     },
                     "permission": "drwxr-xr--",
-                    "children": []
+                    "children": [
+                        {
+                            "name": "myfile",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": [
+                                {
+                                    "name": "txt2image.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk0, 0x2ee24a1c444c500, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk1, 0x771eb134b9f7900, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk2, 0x6d027b14dbd9100, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk3, 0x6cabd9c4a8c6600, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk4, 0x98f3dee60511b00, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk5, 0x46c43e228c0a700, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk6, 0x1aaba5d137e12200, 100)",
+                                            "(pi1, _home_alpt_myfile_txt2image.py_chunk7, 0x14483db823201500, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 800,
+                                    "occupied": 800
+                                },
+                                {
+                                    "name": "my.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_myfile_my.py_chunk0, 0x1197e5175688e00, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk1, 0xd1b9b672268f700, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk2, 0x1c5d053022ff1400, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk3, 0xf65b1725f25e900, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk4, 0x1dc24b8b7eab5500, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk5, 0x11f0867ba41a6600, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk6, 0x1949b90c2c11ce00, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk7, 0xcec3653d3353c00, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk8, 0x34c3b4eb5de2500, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk9, 0x19e0eda6f22ae800, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk10, 0x72e681ff8dce100, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk11, 0x17a21f3dd68f5c00, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk12, 0x1bad5c968c912100, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk13, 0x6aba49c8b07f400, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk14, 0x442697301c3f700, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk15, 0xec2c5c5f0fca000, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk16, 0xc22591861a69300, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk17, 0xdd74626aca89900, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk18, 0x10553b83ef6ec100, 100)",
+                                            "(pi1, _home_alpt_myfile_my.py_chunk19, 0x6ba384c9d84ca00, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 2000,
+                                    "occupied": 2000
+                                },
+                                {
+                                    "name": "main.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_myfile_main.py_chunk0, 0x18fc6031de9a5500, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk1, 0x1c7e96e075dc0a00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk2, 0xcfcbf654f9f2700, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk3, 0x154aa81d63008e00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk4, 0x66fa0d073a79e00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk5, 0x1433224378213e00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk6, 0x5fd6eff0ee39300, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk7, 0x4952aeb85e77800, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk8, 0x11ada6f242bfd400, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk9, 0x10509c3f7630f000, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk10, 0xeec6fb44b818e00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk11, 0x187f4a7bdd5de800, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk12, 0xc0236e6a0350c00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk13, 0x1d0ebc21f45f8d00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk14, 0x9c2f651db8c1400, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk15, 0x945fb9393a4ab00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk16, 0xece1ad61e9fdb00, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk17, 0xe7b2ac86c69400, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk18, 0x1cf58de9ed09d100, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk19, 0x1f2edb19d24ea600, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk20, 0x1bc9c8b3320d7500, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk21, 0x1016621fb2730400, 100)",
+                                            "(pi1, _home_alpt_myfile_main.py_chunk22, 0x145e395e8573ea00, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 2300,
+                                    "occupied": 2300
+                                },
+                                {
+                                    "name": "test.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_myfile_test.py_chunk0, 0x1816ff3b5c9c5a00, 100)",
+                                            "(pi1, _home_alpt_myfile_test.py_chunk1, 0x1014d869b1e99e00, 100)",
+                                            "(pi1, _home_alpt_myfile_test.py_chunk2, 0xbc4c4ada3ed8900, 100)",
+                                            "(pi1, _home_alpt_myfile_test.py_chunk3, 0xebe9cea285c5500, 100)",
+                                            "(pi1, _home_alpt_myfile_test.py_chunk4, 0x6b22a5d27baad00, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 500,
+                                    "occupied": 500
+                                }
+                            ]
+                        },
+                        {
+                            "name": "txt2image.py",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "-rwxr-xr--",
+                            "chunks": {
+                                "0": [
+                                    "(pi1, _home_alpt_txt2image.py_chunk0, 0x15afc8633d0bc300, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk1, 0xb8ca6539778d300, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk2, 0x1f2281bae91cd100, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk3, 0x1ca6841df9c8fa00, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk4, 0x45e3e2965575f00, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk5, 0x17693c280e4aea00, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk6, 0x9eaf0bd34f3b700, 100)",
+                                    "(pi1, _home_alpt_txt2image.py_chunk7, 0x18ad8c71fe4a9200, 100)"
+                                ]
+                            },
+                            "chunk_size": 10,
+                            "size": 800,
+                            "occupied": 800
+                        },
+                        {
+                            "name": "lmx",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": [
+                                {
+                                    "name": "content_server.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk0, 0x2b2f03f95968d00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk1, 0x11811efb8e8d7900, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk2, 0x1a0b04fc18411900, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk3, 0xa05835ed079cc00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk4, 0x1206f89c809ad800, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk5, 0x19ae5fee6e209800, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk6, 0x1b18e95e8baedc00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk7, 0x1407b33cb8cb9000, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk8, 0xbe564ea9a878a00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk9, 0xde9fa44c02ead00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk10, 0x1f1dc97482290200, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk11, 0x1d0b4779734d2500, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk12, 0x12370259485e7e00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk13, 0x7ce32b81a21d800, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk14, 0xfd30fb0923f3b00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk15, 0x1355271876b90400, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk16, 0x1c938a6230346000, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk17, 0x5fea83f3b68dd00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk18, 0x8227ffc60b00900, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk19, 0x12a769d9f8fa3500, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk20, 0x1693dafe6a6b9d00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk21, 0x1ee4ed2047035f00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk22, 0x7eca4d5623d7d00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk23, 0x10ee17c4ea8cb500, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk24, 0x1e0bc8a320c65600, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk25, 0x1429f54c7a6cb100, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk26, 0x3ad3a78ef1a1b00, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk27, 0x7cc6b269168a600, 100)",
+                                            "(pi1, _home_alpt_lmx_content_server.py_chunk28, 0x1cf75b0f6a5b700, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 2900,
+                                    "occupied": 2900
+                                },
+                                {
+                                    "name": "tcp_server.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk0, 0x14d898c204e92c00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk1, 0x15aaed4e24f27800, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk2, 0x16fed39ab19b1300, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk3, 0x1b51b7badd766800, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk4, 0xee81d8f41c76c00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk5, 0x15bf26e3350fe900, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk6, 0xc19a61fa25fad00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk7, 0x1730c89538cd9c00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk8, 0x287039012933000, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk9, 0x1d0793730be61a00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk10, 0xce3d00974ee7b00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk11, 0x1fee5040a9cc100, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk12, 0x1dd46e953a248600, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk13, 0xa04abaec76dcd00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk14, 0x1bbb7a423ed65800, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk15, 0x664a7a87930700, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk16, 0x45869667f703300, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk17, 0x5dbd74c61646d00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk18, 0xe88d68622c1c00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk19, 0xc399558895f700, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk20, 0x1d11cf6bda9f6000, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk21, 0x1c6a610eba2c2d00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk22, 0x57190214ba1d400, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk23, 0x1ac41679fd648e00, 100)",
+                                            "(pi1, _home_alpt_lmx_tcp_server.py_chunk24, 0xe3edafe9b18a400, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 2500,
+                                    "occupied": 2500
+                                }
+                            ]
+                        },
+                        {
+                            "name": "hdhsk",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "drwxr-xr--",
+                            "children": [
+                                {
+                                    "name": "content_server.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk0, 0x7b74c8eff41f500, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk1, 0x1413ff8ac876ca00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk2, 0xed870b48b19100, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk3, 0xff918cef7137600, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk4, 0x1b7b48fbda86a700, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk5, 0x164ce74056a45b00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk6, 0xb07be34e334f600, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk7, 0x18120a70e5f41e00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk8, 0xef6b9d72edaba00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk9, 0x1370fd99db94000, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk10, 0x499a2a436445000, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk11, 0x1d18b155f3dc4000, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk12, 0xc7cdf24f156f400, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk13, 0x8bb5def42228f00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk14, 0x16fcaf604ea90900, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk15, 0x15077df692fa200, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk16, 0x1143a84068e89b00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk17, 0x1b2c7e4b656efb00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk18, 0x1b4bfd7afa116a00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk19, 0x139fcd1fd30c1200, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk20, 0x178ba986eb9b8600, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk21, 0x12616a8a5d055600, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk22, 0xe8848676651bc00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk23, 0x4d4b9bb712fcd00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk24, 0x1125379d45139e00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk25, 0x2d120fdafed6f00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk26, 0x1f3a74153481f100, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk27, 0x1d54d967f3cde000, 100)",
+                                            "(pi1, _home_alpt_hdhsk_content_server.py_chunk28, 0x11aa1981ed6d1000, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 2900,
+                                    "occupied": 2900
+                                },
+                                {
+                                    "name": "test.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_hdhsk_test.py_chunk0, 0x1edbfd1399d58f00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_test.py_chunk1, 0x1af644c61d14bf00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_test.py_chunk2, 0x1506ed8a04448700, 100)",
+                                            "(pi1, _home_alpt_hdhsk_test.py_chunk3, 0x147de818f5741200, 100)",
+                                            "(pi1, _home_alpt_hdhsk_test.py_chunk4, 0x1bbb056f8c908200, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 500,
+                                    "occupied": 500
+                                },
+                                {
+                                    "name": "main.py",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "-rwxr-xr--",
+                                    "chunks": {
+                                        "0": [
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk0, 0x99e5e8ddb950c00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk1, 0x1ee3b15800748800, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk2, 0xa5c5e3f4500c800, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk3, 0x1b7d1810ceb09400, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk4, 0x16bc539421208200, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk5, 0xfda88fb66fefb00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk6, 0x10e9fda2e8f38300, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk7, 0xeef2fedf8b6cb00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk8, 0x12231f83eacf6100, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk9, 0x17ca9ebca6b5900, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk10, 0x1da175016d65e00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk11, 0x1da091e92688cc00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk12, 0xe714c1840ae9a00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk13, 0x51cff2333a0c700, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk14, 0x102c4cdb1409600, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk15, 0x19cd1f6b23adac00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk16, 0xb09d4f107baf900, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk17, 0x1c4c393ebde4bf00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk18, 0x452cc34ee09fb00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk19, 0x18f9d5f4468a7000, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk20, 0x18fcec87fc605200, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk21, 0x1e8a139473ed9a00, 100)",
+                                            "(pi1, _home_alpt_hdhsk_main.py_chunk22, 0x108be85884592600, 100)"
+                                        ]
+                                    },
+                                    "chunk_size": 10,
+                                    "size": 2300,
+                                    "occupied": 2300
+                                },
+                                {
+                                    "name": "hhhk",
+                                    "owner": {
+                                        "name": "alpt",
+                                        "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                        "groups": [
+                                            "thu",
+                                            "alpt"
+                                        ],
+                                        "privilage": "user"
+                                    },
+                                    "permission": "drwxr-xr--",
+                                    "children": [
+                                        {
+                                            "name": "main.py",
+                                            "owner": {
+                                                "name": "alpt",
+                                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                                "groups": [
+                                                    "thu",
+                                                    "alpt"
+                                                ],
+                                                "privilage": "user"
+                                            },
+                                            "permission": "-rwxr-xr--",
+                                            "chunks": {
+                                                "0": [
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk0, 0xdc5284326cc0f00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk1, 0x1c4a78593ad51400, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk2, 0xb9a2dbf78bea400, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk3, 0xf844ff4a92c5300, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk4, 0x100e8e8922a77800, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk5, 0x1b6979b5ce8d8e00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk6, 0x147e89ac97e47700, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk7, 0xa9e3d454f787600, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk8, 0xea29cad3bdec400, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk9, 0x13228515bd683d00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk10, 0xa6e48b9de6f4100, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk11, 0xce5f61f71d3cf00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk12, 0xf65b7d1734d7200, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk13, 0x1e505a036a8eca00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk14, 0x28aad50fcdd1000, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk15, 0xad8671bd16af600, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk16, 0x16632e03c543ed00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk17, 0xaff2440871f1800, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk18, 0x131922ec096abe00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk19, 0x967d8e5ce7aa000, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk20, 0x1b93594780239a00, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk21, 0x1babe31bf208a400, 100)",
+                                                    "(pi1, _home_alpt_hdhsk_hhhk_main.py_chunk22, 0x188a1a928cf6cd00, 100)"
+                                                ]
+                                            },
+                                            "chunk_size": 10,
+                                            "size": 2300,
+                                            "occupied": 2300
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         }

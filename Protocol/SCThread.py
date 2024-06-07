@@ -29,6 +29,7 @@ class SCThread(threading.Thread):
                 print(f"SCThread: Received: {data}")
                 response = self.process(data)
                 if response:
+                    print(f"SCThread: Sending: {response}")
                     self.io_stream.send(response)
                 if response == "221 Goodbye":
                     break
