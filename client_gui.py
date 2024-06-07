@@ -195,7 +195,7 @@ class Cloud_GUI(RawClient):
         cm_quit_response = self.client2m.recv()
         if cm_quit_response.startswith('221'):
             # 与从机建立连接
-            import time; time.sleep(5)
+            import time; time.sleep(2)
             client2s = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
             client2s.send('hello')
             hello_response = client2s.recv()
@@ -204,14 +204,14 @@ class Cloud_GUI(RawClient):
                 return
             # 上传文件
             with open(file_path, 'rb') as f:
-                for chunk in stor_chunk_list:
-                    data = f.read(CHUNK_SIZE)
+                for chunk in stor_chunk_list: 
+                    data = f.read((CHUNK_SIZE))
                     client2s.send('stor' + ' ' + chunk)
                     stor_response = client2s.recv()
                     if not stor_response.startswith('300'):
                         messagebox.showinfo("STOR Error", stor_response)
                         return
-                    data = base64.b64encode(data).decode(encoding='utf-8')
+                    data = data.decode(encoding='utf-8')
                     client2s.send(data)
                     data_response = client2s.recv()
                     if not data_response.startswith('200'):
@@ -238,10 +238,11 @@ class Cloud_GUI(RawClient):
 
     def download(self):
         self.client2m.send('pwd')
-        current_folder = self.client2m.recv()
-        if not current_folder.startswith('257'):
+        current_folder = self.client2m.recv().split()
+        if not current_folder[0].startswith('257'):
             messagebox.showinfo("Error", current_folder)
             return
+        current_folder = current_folder[1]
         # 选择下载文件
         selected_file = self.selected_file
         if not selected_file:
@@ -280,12 +281,12 @@ class Cloud_GUI(RawClient):
             for chunk in retr_chunk_list:
                 client2s.send('retr' + ' ' + chunk)
                 retr_response = client2s.recv()
-                parts = retr_response.split('\n', 1)
+                parts = retr_response.split('\n')
                 if not parts[0].startswith('200'):
                     messagebox.showinfo("Error", retr_response)
                     return
-                # NOTE 建议lmx修改下载文件的形式
-                data = base64.b64decode(parts[1].encode(encoding='utf-8'))
+                data = parts[1].encode(encoding='utf-8')
+                # data = base64.b64decode(parts[1].encode(encoding='utf-8'))
                 f.write(data)
         client2s.send('quit')
         quit_response = client2s.recv()
