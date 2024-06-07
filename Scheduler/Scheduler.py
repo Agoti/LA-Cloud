@@ -50,6 +50,8 @@ class Scheduler:
     
     def allocate_chunks(self, size: int, file_path: str) -> dict:
 
+        if size <= 0:
+            return None
         n_chunks = size // self.chunk_size + (1 if size % self.chunk_size != 0 else 0)
         allocated = set()
         exclude_pi_names = set()
@@ -144,3 +146,13 @@ class Scheduler:
 
         self.lock.release()
                     
+    def select_backup(self, chunk_table: ChunkTable):
+
+        online_pi_names = self.slave_states.get_pi_names()
+        for backup in chunk_table:
+            for chunk in backup:
+                if chunk.location not in online_pi_names:
+                    continue
+            return ChunkTable.from_dict({0: backup})
+        
+        return None

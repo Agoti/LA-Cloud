@@ -200,11 +200,16 @@ class MCThread(threading.Thread):
             return "550 Permission denied"
         absolute_path = self.directory_tree.get_path(parent) + "/" + path.split("/")[-1]
         chunks = self.scheduler.allocate_chunks(size, absolute_path)
+        if chunks is None:
+            return "550 Allocation Error"
         self.scheduler.allocate_request(chunks)
         print(f"ftp_stor: absolute_path: {absolute_path}")
 
         chunk_table = ChunkTable.from_dict(chunks)
         self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunk_table, 10)
+        chunk_table = self.scheduler.select_backup(chunk_table)
+        if chunk_table is None:
+            return "550 Backup Error"
         
         response_builder = "200 \n"
         response_builder += str(chunk_table)
