@@ -1,5 +1,6 @@
 
 import threading
+import struct
 import os
 from IO.IOStream import Knock, Answer, IOStream
 from ChunkRefs.ChunkRefs import ChunkRefs
@@ -26,7 +27,7 @@ class SCThread(threading.Thread):
         while True:
             try:
                 if self.state == "stor":
-                    data = self.io_stream.receive(is_byte = True)
+                    header = self.io_stream.receive(is_byte = True)
                 else:
                     data = self.io_stream.receive()
 
@@ -121,21 +122,24 @@ class SCThread(threading.Thread):
     def ftp_retrieve(self, chunk_handle: str) -> bytes:
 
         if self.state != "hello":
-            return "503 Bad Sequence"
+            return b"503 Bad Sequence"
 
         chunk_handle = ChunkHandle.from_string(chunk_handle)
         if chunk_handle.name not in self.chunk_refs.chunk_refs:
             print('scthread:', chunk_handle.name, self.chunk_refs.chunk_refs)
-            return "503 Chunk Handle Not Allocated"
+            return b"503 Chunk Handle Not Allocated"
         elif chunk_handle != self.chunk_refs.chunk_refs[chunk_handle.name]["chunk_handle"]:
-            return "503 Chunk Handle Mismatch"
+            return b"503 Chunk Handle Mismatch"
         elif not self.chunk_refs.get_filled(chunk_handle.name):
-            return "204 Empty Chunk"
+            return b"204 Empty Chunk"
         
         with open(os.path.join(self.chunk_path, chunk_handle.name), "rb") as f:
             data = f.read()
         
-        response = bytes(f"200 {len(data)}\n", "utf-8") + data
-        return response
+        code = "200"
+        file_size = len(data)
+        header = struct.pack("!II", code, file_size)
+        self.io_stream
+
 
 
