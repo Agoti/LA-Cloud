@@ -8,12 +8,12 @@ class RawClient:
         self.port = port
         self.io_stream = Knock(method='socket', host=host, port=port).knock()
 
-    def send(self, data):
+    def send(self, data, is_byte = False):
         print(f"Sending: {data}")
-        self.io_stream.send(data)
+        self.io_stream.send(data, is_byte = is_byte)
 
-    def recv(self):
-        data = self.io_stream.receive()
+    def recv(self, is_byte = False):
+        data = self.io_stream.receive(is_byte=is_byte)
         print(f"Received: {data}")
         return data
 

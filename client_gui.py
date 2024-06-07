@@ -5,7 +5,7 @@ from PIL import Image, ImageTk  # 导入PIL
 from IO.IOStream import *
 from Constants import *
 from RawClient import RawClient
-import base64
+import struct
 
 
 class Cloud_GUI(RawClient):
@@ -205,14 +205,15 @@ class Cloud_GUI(RawClient):
             # 上传文件
             with open(file_path, 'rb') as f:
                 for chunk in stor_chunk_list: 
-                    data = f.read((CHUNK_SIZE))
                     client2s.send('stor' + ' ' + chunk)
                     stor_response = client2s.recv()
                     if not stor_response.startswith('300'):
                         messagebox.showinfo("STOR Error", stor_response)
                         return
-                    data = data.decode(encoding='utf-8')
-                    client2s.send(data)
+                    data = f.read(CHUNK_SIZE)
+                    header = struct.pack('!I', len(data))
+                    client2s.send(header, is_byte=True)
+                    client2s.send(data, is_byte=True)
                     data_response = client2s.recv()
                     if not data_response.startswith('200'):
                         messagebox.showinfo("UPLOAD Error", data_response)
@@ -280,14 +281,18 @@ class Cloud_GUI(RawClient):
         with open(local_file, 'wb') as f:
             for chunk in retr_chunk_list:
                 client2s.send('retr' + ' ' + chunk)
-                retr_response = client2s.recv()
-                parts = retr_response.split('\n')
-                if not parts[0].startswith('200'):
-                    messagebox.showinfo("Error", retr_response)
+                header = client2s.recv(is_byte=True)
+                code= struct.unpack('!4s', header[:4])[0]
+                if code != b'200 ':
+                    messagebox.showinfo("Error", header.decode(encoding='utf-8'))
                     return
-                data = parts[1].encode(encoding='utf-8')
-                # data = base64.b64decode(parts[1].encode(encoding='utf-8'))
+                length = struct.unpack('!I', header[4:8])[0]
+                data = b''
+                while len(data) < length:
+                    data += client2s.recv(is_byte=True)
                 f.write(data)
+                # data = base64.b64decode(parts[1].encode(encoding='utf-8'))
+                
         client2s.send('quit')
         quit_response = client2s.recv()
         if not quit_response.startswith('221'):
