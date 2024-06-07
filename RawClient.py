@@ -6,7 +6,8 @@ class RawClient:
     def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.io_stream = Knock(method='socket', host=host, port=port).knock()
+        self.knock = Knock(method='socket', host=host, port=port)
+        self.io_stream = self.knock.knock()
 
     def send(self, data, is_byte = False):
         print(f"Sending: {data}")
