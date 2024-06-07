@@ -226,6 +226,7 @@ class Cloud_GUI(RawClient):
         # 获取文件大小
         file_size = os.path.getsize(file_path)
         file_name = os.path.basename(file_path)
+        file_name = file_name.replace(' ', '_')
         stor_chunk_list = []
         self.client2m.send('stor' + ' ' + file_name  + ' ' + str(file_size))
         stor_response = ""
@@ -336,6 +337,9 @@ class Cloud_GUI(RawClient):
 
     def create_folder(self):
         folder_name = simpledialog.askstring('新建文件夹', '请输入文件夹名字')
+        if not folder_name:
+            return
+        folder_name = folder_name.replace(' ', '_')
         self.client2m.send('mkdir' + ' ' + folder_name)
         mkdir_response = self.client2m.recv()
         if mkdir_response.startswith('257'):
