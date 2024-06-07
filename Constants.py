@@ -2,21 +2,21 @@
 CHUNK_SIZE = 100
 N_BACKUPS = 2
 
-MASTER_IP = "localhost"
-SLAVE_IP_PORT = {
-    "pi1": {
-        "ip": "localhost",
-        "port": 9997
-    },
-    "pi2": {
-        "ip": "localhost",
-        "port": 9997
-    },
-    "pi3": {
-        "ip": "localhost",
-        "port": 9997
-    }
-}
+# MASTER_IP = "localhost"
+# SLAVE_IP_PORT = {
+#     "pi1": {
+#         "ip": "localhost",
+#         "port": 9997
+#     },
+#     "pi2": {
+#         "ip": "localhost",
+#         "port": 9997
+#     },
+#     "pi3": {
+#         "ip": "localhost",
+#         "port": 9997
+#     }
+# }
 # DISK = {
 #     "pi1": {
 #         "path": "VirtualDisk/pi1",
@@ -32,21 +32,21 @@ SLAVE_IP_PORT = {
 #     }
 # }
 
-# MASTER_IP = "10.0.0.1"
-# SLAVE_IP_PORT = {
-#     "pi1": {
-#         "ip": "10.0.0.2",
-#         "port": 9997
-#     },
-#     "pi2": {
-#         "ip": "10.0.0.3",
-#         "port": 9997
-#     },
-#     "pi3": {
-#         "ip": "10.0.0.4",
-#         "port": 9997
-#     }
-# }
+MASTER_IP = "10.0.0.1"
+SLAVE_IP_PORT = {
+    "pi1": {
+        "ip": "10.0.0.1",
+        "port": 9997
+    },
+    "pi2": {
+        "ip": "10.0.0.3",
+        "port": 9997
+    },
+    "pi3": {
+        "ip": "10.0.0.4",
+        "port": 9997
+    }
+}
 DISK = {
     "pi1": {
         "path": "file",
