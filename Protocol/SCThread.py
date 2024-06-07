@@ -28,6 +28,11 @@ class SCThread(threading.Thread):
             try:
                 if self.state == "stor":
                     header = self.io_stream.receive(is_byte = True)
+                    file_size = struct.unpack("!I", header)[0]
+                    print(f"SCThread: File size: {file_size}")
+                    data = b""
+                    while len(data) < file_size:
+                        data += self.io_stream.receive(is_byte = True)
                 else:
                     data = self.io_stream.receive()
 
@@ -136,10 +141,12 @@ class SCThread(threading.Thread):
         with open(os.path.join(self.chunk_path, chunk_handle.name), "rb") as f:
             data = f.read()
         
-        code = "200"
-        file_size = len(data)
-        header = struct.pack("!II", code, file_size)
-        self.io_stream
+        code = b"200 "
+        header = struct.pack("!4sI", code, len(data))
+        self.io_stream.send(header, is_byte = True)
+        print(f"SCThread: Sending: {header}")
+
+        return data
 
 
 
