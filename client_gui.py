@@ -6,6 +6,8 @@ from IO.IOStream import *
 from Constants import *
 from RawClient import RawClient
 import struct
+import time
+
 
 
 class Cloud_GUI(RawClient):
@@ -70,12 +72,17 @@ class Cloud_GUI(RawClient):
 
     def on_closing(self):
         if messagebox.askokcancel("退出", "确定要退出吗？"):
-            self.client2m.send('quit')
-            quit_response = self.client2m.recv()
-            if not quit_response.startswith('221'):
-                messagebox.showinfo("Error", quit_response)
-            self.client2m.close()
-            self.window.destroy()
+            try:
+                self.client2m.knock.socket.settimeout(2)
+                self.client2m.send('quit')
+                quit_response = self.client2m.recv()
+                if not quit_response.startswith('221'):
+                    messagebox.showinfo("Error", quit_response)  
+            except Exception as e:
+                print(e)
+            finally:
+                self.client2m.close()
+                self.window.destroy()
 
     def create_main(self):
         self.is_main_frame = True
@@ -162,22 +169,64 @@ class Cloud_GUI(RawClient):
         else:
             messagebox.showinfo("Error", cd_response)
 
+    def select_pi(self, chunk):
+        pi = self.pi_from_chunk_string(chunk)
+        is_pi1_connected = False
+        is_pi2_connected = False
+        is_pi3_connected = False
+        if pi == 'pi1' :
+            if is_pi1_connected == False:
+                client2pi1 = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
+                client2pi1.send('hello')
+                hello_response = client2pi1.recv()
+                if not hello_response.startswith('200'):
+                    messagebox.showinfo("HELLO Error", hello_response)
+                    return
+                is_pi1_connected = True
+
+            return client2pi1
+
+        elif pi == 'pi2':
+            if is_pi2_connected == False:
+                client2pi2 = RawClient(SLAVE_IP_PORT["pi2"]["ip"], SLAVE_IP_PORT["pi2"]["port"])
+                client2pi2.send('hello')
+                hello_response = client2pi2.recv()
+                if not hello_response.startswith('200'):
+                    messagebox.showinfo("HELLO Error", hello_response)
+                    return
+                is_pi2_connected = True
+            return client2pi2
+        
+        elif pi == 'pi3' :
+            if is_pi3_connected == False:
+                client2pi3 = RawClient(SLAVE_IP_PORT["pi3"]["ip"], SLAVE_IP_PORT["pi3"]["port"])
+                client2pi3.send('hello')
+                hello_response = client2pi3.recv()
+                if not hello_response.startswith('200'):
+                    messagebox.showinfo("HELLO Error", hello_response)
+                    return
+            is_pi3_connected = True
+            return client2pi3
+
+        else:
+            messagebox.showinfo("Error", 'PI Error')
+            return None
+
+
+    def pi_from_chunk_string(self, string):
+        string = string[1:-1]
+        parts = string.split(', ')
+        return parts[0]
+    
     def upload(self):
-        self.client2m.send('pwd')
-        current_folder = self.client2m.recv().split()
-        if not current_folder[0].startswith('257'):
-            messagebox.showinfo("Error", current_folder)
-            return
-        current_folder = current_folder[1]
         # 打开本机文件选择对话框
         file_path = filedialog.askopenfilename()
         if not file_path:
             return
         # 获取文件大小
         file_size = os.path.getsize(file_path)
-        print(file_size)
-        # 上传文件
         file_name = os.path.basename(file_path)
+        file_name = file_name.replace(' ', '_')
         stor_chunk_list = []
         self.client2m.send('stor' + ' ' + file_name  + ' ' + str(file_size))
         stor_response = ""
@@ -191,59 +240,36 @@ class Cloud_GUI(RawClient):
             messagebox.showinfo("Error", stor_response)
             return
         stor_chunk_list = stor_response[2:-1]
-        self.client2m.send('quit')
-        cm_quit_response = self.client2m.recv()
-        if cm_quit_response.startswith('221'):
-            # 与从机建立连接
-            import time; time.sleep(2)
-            client2s = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
-            client2s.send('hello')
-            hello_response = client2s.recv()
-            if not hello_response.startswith('200'):
-                messagebox.showinfo("HELLO Error", hello_response)
-                return
-            # 上传文件
-            with open(file_path, 'rb') as f:
-                for chunk in stor_chunk_list: 
-                    client2s.send('stor' + ' ' + chunk)
-                    stor_response = client2s.recv()
-                    if not stor_response.startswith('300'):
-                        messagebox.showinfo("STOR Error", stor_response)
-                        return
-                    data = f.read(CHUNK_SIZE)
-                    header = struct.pack('!I', len(data))
-                    client2s.send(header, is_byte=True)
-                    client2s.send(data, is_byte=True)
-                    data_response = client2s.recv()
-                    if not data_response.startswith('200'):
-                        messagebox.showinfo("UPLOAD Error", data_response)
-                        return
-            client2s.send('quit')
-            quit_response = client2s.recv()
-            if not quit_response.startswith('221'):
-                messagebox.showinfo("CS QUIT Error", quit_response)
-                return
-            client2s.close()
-        else :
-            messagebox.showinfo("CM QUITError", cm_quit_response)
+        # 与从机建立连接
+        time.sleep(2)        
+        # 上传文件
+        with open(file_path, 'rb') as f:
+            for chunk in stor_chunk_list: 
+                client2s = self.select_pi(chunk)
+                client2s.send('stor' + ' ' + chunk)
+                stor_response = client2s.recv()
+                if not stor_response.startswith('300'):
+                    messagebox.showinfo("STOR Error", stor_response)
+                    return
+                data = f.read(CHUNK_SIZE)
+                header = struct.pack('!I', len(data))
+                client2s.send(header, is_byte=True)
+                client2s.send(data, is_byte=True)
+                data_response = client2s.recv()
+                if not data_response.startswith('200'):
+                    messagebox.showinfo("UPLOAD Error", data_response)
+                    return
+        client2s.send('quit')
+        quit_response = client2s.recv()
+        if not quit_response.startswith('221'):
+            messagebox.showinfo("CS QUIT Error", quit_response)
+            return
+        client2s.close()
         
-        self.client2m = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
-        self.login()
-        self.client2m.send('cd' + ' ' + current_folder)
-        cd_response = self.client2m.recv()
-        if cd_response.startswith('250'):
-            self.refresh()
-        else:
-            messagebox.showinfo("Error", cd_response)
+        self.refresh()
 
 
     def download(self):
-        self.client2m.send('pwd')
-        current_folder = self.client2m.recv().split()
-        if not current_folder[0].startswith('257'):
-            messagebox.showinfo("Error", current_folder)
-            return
-        current_folder = current_folder[1]
         # 选择下载文件
         selected_file = self.selected_file
         if not selected_file:
@@ -265,21 +291,10 @@ class Cloud_GUI(RawClient):
             messagebox.showinfo("Error", retr_response)
             return
         retr_chunk_list = retr_response.split('\n')[2:-1]
-        self.client2m.send('quit')
-        cm_quit_response = self.client2m.recv()
-        if not cm_quit_response.startswith('221'):
-            messagebox.showinfo("Error", cm_quit_response)
-            return
-        # 与从机建立连接
-        client2s = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
-        client2s.send('hello')
-        hello_response = client2s.recv()
-        if not hello_response.startswith('200'):
-            messagebox.showinfo("Error", hello_response)
-            return
         # 下载文件
         with open(local_file, 'wb') as f:
             for chunk in retr_chunk_list:
+                client2s = self.select_pi(chunk)
                 client2s.send('retr' + ' ' + chunk)
                 header = client2s.recv(is_byte=True)
                 code= struct.unpack('!4s', header[:4])[0]
@@ -298,14 +313,8 @@ class Cloud_GUI(RawClient):
         if not quit_response.startswith('221'):
             messagebox.showinfo("Error", quit_response)
             return
-        self.client2m = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
-        self.login()
-        self.client2m.send('cd' + ' ' + current_folder)
-        cd_response = self.client2m.recv()
-        if cd_response.startswith('250'):
-            self.refresh()
-        else:
-            messagebox.showinfo("Error", cd_response)
+        client2s.close()
+        self.refresh()
         
 
     def delete(self):
@@ -328,6 +337,9 @@ class Cloud_GUI(RawClient):
 
     def create_folder(self):
         folder_name = simpledialog.askstring('新建文件夹', '请输入文件夹名字')
+        if not folder_name:
+            return
+        folder_name = folder_name.replace(' ', '_')
         self.client2m.send('mkdir' + ' ' + folder_name)
         mkdir_response = self.client2m.recv()
         if mkdir_response.startswith('257'):
