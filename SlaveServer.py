@@ -111,9 +111,18 @@ class Slave:
     def allocate(self, data: str):
         chunks = data.split('\n')[1:-1]
         for chunk in chunks:
+            parts = chunk.split(" -> ")
+            chunk = parts[0]    
             chunk = ChunkHandle.from_string(chunk.strip())
             self.virtual_disk_space -= chunk.size
             self.chunk_refs.add_chunk(chunk)
+            if len(parts) > 1:
+                backups = parts[1].split(" | ")
+                for backup in backups:
+                    backup = ChunkHandle.from_string(backup.strip())
+                    self.chunk_refs.add_backup(chunk, backup)
+                    print(f"Slave: {chunk} -> {backup}")
+
             print(f"Slave: Allocated: {chunk}")
         # self.master_io.send("ACK")
     

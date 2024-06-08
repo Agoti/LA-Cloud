@@ -13,7 +13,8 @@ class ChunkRefs:
         with self.lock:
             self.chunk_refs[chunk_handle.name] = {
                 "chunk_handle": chunk_handle,
-                "filled": False
+                "filled": False,
+                "backup": []
             }
     
     def remove_chunk(self, chunk_handle: ChunkHandle):
@@ -31,13 +32,22 @@ class ChunkRefs:
             else:
                 return False
     
+    def add_backup(self, chunk_handle: ChunkHandle, backup: ChunkHandle):
+        with self.lock:
+            self.chunk_refs[chunk_handle.name]["backup"].append(backup)
+    
+    def get_backups(self, chunk_handle: ChunkHandle):
+        with self.lock:
+            return self.chunk_refs[chunk_handle.name]["backup"]
+    
     def to_dict(self):
         with self.lock:
             chunk_refs_dict = {}
             for chunk_name, chunk_ref in self.chunk_refs.items():
                 chunk_refs_dict[chunk_name] = {
                     "chunk_handle": chunk_ref["chunk_handle"].to_string(),
-                    "filled": chunk_ref["filled"]
+                    "filled": chunk_ref["filled"],
+                    "backup": [backup.to_string() for backup in chunk_ref["backup"]]
                 }
         return chunk_refs_dict
     
@@ -47,7 +57,8 @@ class ChunkRefs:
         for chunk_name, chunk_ref in chunk_refs_dict.items():
             chunk_refs.chunk_refs[chunk_name] = {
                 "chunk_handle": ChunkHandle.from_string(chunk_ref["chunk_handle"]),
-                "filled": chunk_ref["filled"]
+                "filled": chunk_ref["filled"],
+                "backup": [ChunkHandle.from_string(backup) for backup in chunk_ref["backup"]]
             }
         return chunk_refs
     

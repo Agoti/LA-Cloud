@@ -5,6 +5,8 @@ import os
 from IO.IOStream import Knock, Answer, IOStream
 from ChunkRefs.ChunkRefs import ChunkRefs
 from DirectoryTree.ChunkHandle import ChunkHandle
+from RawClient import RawClient
+from Constants import *
 
 class SCThread(threading.Thread):
 
@@ -96,7 +98,7 @@ class SCThread(threading.Thread):
         if self.state != "hello":
             return "503 Bad Sequence"
         
-        self.chunk_handle = ChunkHandle.from_string(chunk_handle)
+        self.chunk_handle = ChunkHandle.from_string(chunk_handle.strip())
 
         if self.chunk_handle.name in self.chunk_refs.chunk_refs:
             if self.chunk_handle == self.chunk_refs.chunk_refs[self.chunk_handle.name]["chunk_handle"]:
@@ -121,8 +123,33 @@ class SCThread(threading.Thread):
         
         self.state = "hello"
         self.chunk_refs.set_filled(self.chunk_handle)
+
+        # if a chunk has backups, spawn a thread as a FakeClient to stor backups
+        for backup in self.chunk_refs.get_backups(self.chunk_handle):
+            fake_client_thread = threading.Thread(target=self.fake_client, args=(self.chunk_handle, backup))
+            fake_client_thread.start()
+            fake_client_thread.join()
         
         return response
+
+    def fake_client(self, chunk_handle: ChunkHandle, backup: ChunkHandle):
+        location = backup.location
+        rc = RawClient(SLAVE_IP_PORT[location]["ip"], SLAVE_IP_PORT[location]["port"])
+        rc.send("hello")
+        if rc.recv() == "200 Hello":
+            rc.send(f"stor {backup.to_string()}")
+            if rc.recv() == "300 Waiting for data":
+                rc.send(struct.pack("!I", len(self.bytes_received)), is_byte=True)
+                rc.send(self.bytes_received, is_byte=True)
+                if rc.recv().startswith("2"):
+                    rc.send("quit")
+                    if rc.recv() == "221 Goodbye":
+                        print(f"SCThread: Backup {backup} stored")
+                        rc.close()
+                        return
+
+        print(f"SCThread: Backup {backup} failed")
+        rc.close()
     
     def ftp_retrieve(self, chunk_handle: str) -> bytes:
 

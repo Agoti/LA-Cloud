@@ -1,4 +1,5 @@
 __pycache__
 .VSCodeCounter
-VirtualDisk/*
-file/*
+VirtualDisk
+file
+

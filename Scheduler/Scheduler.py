@@ -112,12 +112,27 @@ class Scheduler:
     def _print_state(self):
         print(str(self.slave_states))
     
-    def allocate_request(self, chunk_handles: dict):
+    def allocate_request(self, chunk_handles: ChunkTable, master: ChunkTable = None):
         self.lock.acquire()
         # message_builder = "ALLOCATE:\n"
         message_builder = dict()
+
+        # master
+        for backup, chunks in master.get_items():
+            for j, chunk in enumerate(chunks):
+                pi_name = chunk.location
+                # message_builder += f"{chunk}\n"
+                if pi_name not in message_builder:
+                    message_builder[pi_name] = "ALLOCATE:\n"
+                message_builder[pi_name] += f"{chunk} -> "
+                for i in range(self.n_backups):
+                    if i in chunk_handles and i != backup:
+                        message_builder[pi_name] += f"{chunk_handles[i][j]} | "
+                message_builder[pi_name] = message_builder[pi_name][:-3] + "\n"
+
+        # others
         for i in range(self.n_backups):
-            if i in chunk_handles:
+            if i in chunk_handles and i not in master:
                 for j in range(len(chunk_handles[i])):
                     pi_name = chunk_handles[i][j].location
                     # message_builder += f"{chunk_handles[i][j]}\n"
@@ -128,6 +143,7 @@ class Scheduler:
         # self.put_message_client(pi_name, message_builder)
         for pi_name, message in message_builder.items():
             self.put_message_client(pi_name, message)
+
         self.lock.release()
     
     def deallocate_request(self, chunk_handles: dict):
@@ -149,10 +165,10 @@ class Scheduler:
     def select_backup(self, chunk_table: ChunkTable):
 
         online_pi_names = self.slave_states.get_pi_names()
-        for backup in chunk_table:
-            for chunk in backup:
+        for backup, chunks in chunk_table.get_items():
+            for chunk in chunks:
                 if chunk.location not in online_pi_names:
                     continue
-            return ChunkTable.from_dict({0: backup})
+            return ChunkTable.from_dict({backup: chunks})
         
         return None

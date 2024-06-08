@@ -14,6 +14,13 @@ class ChunkTable:
         for backup in self.chunks:
             yield self.chunks[backup]
     
+    def __getitem__(self, backup):
+        return self.chunks[backup]
+    
+    def get_items(self):
+        for backup in self.chunks:
+            yield backup, self.chunks[backup]
+    
     def get_size(self):
         if len(self.chunks) == 0:
             return 0
