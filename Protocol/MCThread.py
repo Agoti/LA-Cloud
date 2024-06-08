@@ -96,6 +96,11 @@ class MCThread(threading.Thread):
             if len(args) < 2:
                 return "501 Syntax error in parameters or arguments"
             response = self.ftp_rmdir(args[1])
+        elif data.startswith("ll"):
+            if len(args) < 2:
+                response = self.ftp_listl()
+            else:
+                response = self.ftp_listl(args[1])
         else:
             response = "500 Syntax error, command unrecognized"
         
@@ -273,4 +278,24 @@ class MCThread(threading.Thread):
         absolute_path = self.directory_tree.get_path(node)
         self.directory_tree.remove(absolute_path)
         return "200 Directory deleted"
+
+    def ftp_listl(self, path = None):
+        if self.state != "password":
+            return "530 Not logged in"
+        node = self.node if path is None else self.directory_tree.get_node(path, node = self.node)
+        if node is None:
+            return "550 Failed to list directory"
+        if not isinstance(node, DirectoryNode):
+            return "550 Not a directory"
+        if not node.verify_permission(self.user, "read"):
+            return "550 Permission denied"
+        childrens = node.list_children_details()
+        builder = "200 \n"
+        for child in childrens:
+            builder += child["name"] + " " + child["owner"]["name"] + " " + child["permission"]
+            if child["permission"][0] == "-":
+                builder += " " + str(child["size"])
+            builder += "\n"
+        
+        return builder
     

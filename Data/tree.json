@@ -61,7 +61,32 @@
                         "privilage": "user"
                     },
                     "permission": "drwxr-xr--",
-                    "children": []
+                    "children": [
+                        {
+                            "name": "\u7f16\u7a0b3.pdf",
+                            "owner": {
+                                "name": "alpt",
+                                "encrypted_password": "e52c76f6020163485b219f353846b982",
+                                "groups": [
+                                    "thu",
+                                    "alpt"
+                                ],
+                                "privilage": "user"
+                            },
+                            "permission": "-rwxr-xr--",
+                            "chunks": {
+                                "0": [
+                                    "(pi1, _home_alpt_\u7f16\u7a0b3.pdf_chunk0, 0x136bd9cb21323a00, 4194304)"
+                                ],
+                                "1": [
+                                    "(pi2, _home_alpt_\u7f16\u7a0b3.pdf_chunk0, 0xa8fa384e0455400, 4194304)"
+                                ]
+                            },
+                            "chunk_size": 10,
+                            "size": 4194304,
+                            "occupied": 8388608
+                        }
+                    ]
                 }
             ]
         }

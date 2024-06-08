@@ -105,8 +105,11 @@ class DirectoryNode(Node):
     def permission_string(self):
         return "d" + str(self.permission)
     
-    def list_children(self):
+    def list_children(self) -> list[str]:
         return [child.name for child in self.children]
+    
+    def list_children_details(self) -> list[dict]:
+        return [child.to_dict() for child in self.children]
     
     def add_child(self, child):
         assert isinstance(child, Node), "child must be of type CB"
