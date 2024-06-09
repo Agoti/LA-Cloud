@@ -4,10 +4,28 @@ import os
 from PIL import Image, ImageTk  # 导入PIL
 from IO.IOStream import *
 from Constants import *
-from RawClient import RawClient
 import struct
 import time
+import threading
 
+class RawClient:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.knock = Knock(method='socket', host=host, port=port)
+        self.io_stream = self.knock.knock()
+
+    def send(self, data, is_byte = False):
+        print(f"Sending: {data[:100]}")
+        self.io_stream.send(data, is_byte = is_byte)
+
+    def recv(self, is_byte = False):
+        data = self.io_stream.receive(is_byte=is_byte)
+        print(f"Received: {data[:100]}")
+        return data
+
+    def close(self):
+        self.io_stream.close()
 
 
 class Cloud_GUI(RawClient):
@@ -17,8 +35,11 @@ class Cloud_GUI(RawClient):
         self.window.geometry('800x600')
         self.window.resizable(0, 0)
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
-
-        self.client2m = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
+        try:
+            self.client2m = RawClient(MASTER_IP, MASTER_CLIENT_PORT)
+        except Exception as e:
+            messagebox.showinfo("Error", 'could not connect to master server')
+            exit(1)
 
         self.style = ttk.Style()
         self.style.theme_use('clam')
@@ -52,11 +73,9 @@ class Cloud_GUI(RawClient):
         login_button.place(x=300, y=300)
 
     def login(self):
-        # if self.is_login_frame:
-        #     username = self.username_entry.get()
-        #     password = self.password_entry.get()
-        username = 'alpt'
-        password = 'alpt'
+        if self.is_login_frame:
+            username = self.username_entry.get()
+            password = self.password_entry.get()
         self.client2m.send('user' + ' ' + username)
         usr_response = self.client2m.recv()
         self.client2m.send('pass' + ' ' + password)
@@ -77,7 +96,7 @@ class Cloud_GUI(RawClient):
                 self.client2m.send('quit')
                 quit_response = self.client2m.recv()
                 if not quit_response.startswith('221'):
-                    messagebox.showinfo("Error", quit_response)  
+                    messagebox.showinfo("Error", 'the Master server is not responding')  
             except Exception as e:
                 print(e)
             finally:
@@ -176,36 +195,49 @@ class Cloud_GUI(RawClient):
         is_pi3_connected = False
         if pi == 'pi1' :
             if is_pi1_connected == False:
-                client2pi1 = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
-                client2pi1.send('hello')
-                hello_response = client2pi1.recv()
-                if not hello_response.startswith('200'):
-                    messagebox.showinfo("HELLO Error", hello_response)
-                    return
-                is_pi1_connected = True
+                try:
+                    client2pi1 = RawClient(SLAVE_IP_PORT["pi1"]["ip"], SLAVE_IP_PORT["pi1"]["port"])
+                    client2pi1.send('hello')
+                    hello_response = client2pi1.recv()
+                    if not hello_response.startswith('200'):
+                        messagebox.showinfo("HELLO Error", hello_response)
+                        return
+                    is_pi1_connected = True
+                except Exception as e:
+                    messagebox.showinfo("Error", 'PI1 Error')
+                    return None
 
             return client2pi1
 
         elif pi == 'pi2':
             if is_pi2_connected == False:
-                client2pi2 = RawClient(SLAVE_IP_PORT["pi2"]["ip"], SLAVE_IP_PORT["pi2"]["port"])
-                client2pi2.send('hello')
-                hello_response = client2pi2.recv()
-                if not hello_response.startswith('200'):
-                    messagebox.showinfo("HELLO Error", hello_response)
-                    return
-                is_pi2_connected = True
+                try:
+                    client2pi2 = RawClient(SLAVE_IP_PORT["pi2"]["ip"], SLAVE_IP_PORT["pi2"]["port"])
+                    client2pi2.send('hello')
+                    hello_response = client2pi2.recv()
+                    if not hello_response.startswith('200'):
+                        messagebox.showinfo("HELLO Error", hello_response)
+                        return
+                    is_pi2_connected = True
+                except Exception as e:
+                    messagebox.showinfo("Error", 'PI1 Error')
+                    return None
+                
             return client2pi2
         
         elif pi == 'pi3' :
             if is_pi3_connected == False:
-                client2pi3 = RawClient(SLAVE_IP_PORT["pi3"]["ip"], SLAVE_IP_PORT["pi3"]["port"])
-                client2pi3.send('hello')
-                hello_response = client2pi3.recv()
-                if not hello_response.startswith('200'):
-                    messagebox.showinfo("HELLO Error", hello_response)
-                    return
-            is_pi3_connected = True
+                try:
+                    client2pi3 = RawClient(SLAVE_IP_PORT["pi3"]["ip"], SLAVE_IP_PORT["pi3"]["port"])
+                    client2pi3.send('hello')
+                    hello_response = client2pi3.recv()
+                    if not hello_response.startswith('200'):
+                        messagebox.showinfo("HELLO Error", hello_response)
+                        return
+                    is_pi3_connected = True
+                except Exception as e:
+                    messagebox.showinfo("Error", 'PI1 Error')
+                    return None
             return client2pi3
 
         else:
@@ -218,11 +250,30 @@ class Cloud_GUI(RawClient):
         parts = string.split(', ')
         return parts[0]
     
+    def progress_bar(self, progress_name='upload'):
+        # 创建进度窗口
+        progress_window = tk.Toplevel(self.window)
+        progress_window.title(progress_name)
+        progress_window.geometry('400x150')
+        progress_var = tk.DoubleVar()
+
+        progress_bar = ttk.Progressbar(progress_window, variable=progress_var, maximum=300)
+        progress_bar.pack(pady=20, padx=20)
+
+        progress_label = tk.Label(progress_window, text=f"{progress_name}ing...")
+        progress_label.pack(pady=10)
+
+        return progress_var, progress_window
+    
     def upload(self):
         # 打开本机文件选择对话框
         file_path = filedialog.askopenfilename()
         if not file_path:
             return
+        # 异步上传
+        threading.Thread(target=self.upload_file, args=(file_path,)).start()
+    
+    def upload_file(self, file_path):
         # 获取文件大小
         file_size = os.path.getsize(file_path)
         file_name = os.path.basename(file_path)
@@ -241,11 +292,16 @@ class Cloud_GUI(RawClient):
             return
         stor_chunk_list = stor_response[2:-1]
         # 与从机建立连接
-        time.sleep(2)        
+        time.sleep(1)    
         # 上传文件
+        progress_var, progress_window = self.progress_bar('upload')
+        progress_var.set(0)  # 进度条初始化为 0
         with open(file_path, 'rb') as f:
-            for chunk in stor_chunk_list: 
+            upload_size = 0
+            for i, chunk in enumerate(stor_chunk_list): 
                 client2s = self.select_pi(chunk)
+                if not client2s:
+                    return
                 client2s.send('stor' + ' ' + chunk)
                 stor_response = client2s.recv()
                 if not stor_response.startswith('300'):
@@ -259,6 +315,12 @@ class Cloud_GUI(RawClient):
                 if not data_response.startswith('200'):
                     messagebox.showinfo("UPLOAD Error", data_response)
                     return
+                # 更新进度条
+                upload_size = upload_size + len(data)
+                progress_var.set((upload_size / file_size) * 100)
+                progress_window.update_idletasks()
+        # 上传完成后关闭进度窗口
+        progress_window.destroy()  
         client2s.send('quit')
         quit_response = client2s.recv()
         if not quit_response.startswith('221'):
@@ -268,9 +330,7 @@ class Cloud_GUI(RawClient):
         
         self.refresh()
 
-
     def download(self):
-        # 选择下载文件
         selected_file = self.selected_file
         if not selected_file:
             messagebox.showinfo("Error", '请选择文件')
@@ -279,6 +339,10 @@ class Cloud_GUI(RawClient):
         local_file = filedialog.asksaveasfilename(initialfile=selected_file)
         if not local_file:
             return
+        # 异步下载
+        threading.Thread(target=self.download_file, args=(local_file,selected_file)).start()
+
+    def download_file(self, local_file, selected_file):
         retr_chunk_list = []
         self.client2m.send('retr' + ' ' + selected_file)
         retr_response = ""
@@ -287,14 +351,22 @@ class Cloud_GUI(RawClient):
             retr_response += retr_res
             if retr_res.endswith('.*.'):
                 break
+            elif not retr_res:
+                break
         if not retr_response.startswith('200'):
             messagebox.showinfo("Error", retr_response)
             return
         retr_chunk_list = retr_response.split('\n')[2:-1]
+        # 创建进度窗口
+        progress_var, progress_window = self.progress_bar('download')
+        progress_var.set(0)  # 进度条初始化为 0
         # 下载文件
         with open(local_file, 'wb') as f:
+            download_size = 0
             for chunk in retr_chunk_list:
                 client2s = self.select_pi(chunk)
+                if not client2s:
+                    return
                 client2s.send('retr' + ' ' + chunk)
                 header = client2s.recv(is_byte=True)
                 code= struct.unpack('!4s', header[:4])[0]
@@ -305,8 +377,13 @@ class Cloud_GUI(RawClient):
                 data = b''
                 while len(data) < length:
                     data += client2s.recv(is_byte=True)
+                    # 更新进度条
+                    download_size = download_size + 1024
+                    progress_var.set((download_size / (len(retr_chunk_list)*CHUNK_SIZE)) * 100)
+                    progress_window.update_idletasks()
                 f.write(data)
-                # data = base64.b64decode(parts[1].encode(encoding='utf-8'))
+        # 上传完成后关闭进度窗口
+        progress_window.destroy() 
                 
         client2s.send('quit')
         quit_response = client2s.recv()
