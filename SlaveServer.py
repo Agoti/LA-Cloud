@@ -100,14 +100,15 @@ class Slave:
         while self.ping_running:
             try:
                 data = heartbeat_io.receive().lower()
-                if random.random() < 0.1:
+                r = random.random()
+                if r < 0.1:
                     print(f"Slave-Heartbeat: Received: {data}")
                 if data.startswith("heartbeat"):
                     response = " ".join(["alive", self.name, str(self.virtual_disk_space)])
                 else:
                     response = "Heartbeat Response: 400 Bad Recv"
                 heartbeat_io.send(response)
-                if random.random() < 0.1:
+                if r < 0.1:
                     print(f"Slave-Heartbeat: Sending: {response}")
             except socket.timeout:
                 continue

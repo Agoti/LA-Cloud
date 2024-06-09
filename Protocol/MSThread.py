@@ -70,11 +70,12 @@ class MSThread(threading.Thread):
         while self.running:
             try:
                 heartbeat_io.send("Heartbeat")
-                if random.random() < 0.1:
+                r = random.random()
+                if r < 0.1:
                     print(f"Heartbeat to {self.pi_name}")
                 response = heartbeat_io.receive().lower()
                 if response.startswith("alive"):
-                    if random.random() < 0.1:
+                    if r < 0.1:
                         print(f"Heartbeat to {self.pi_name}: {response}")
                     capacity = int(response.split(" ")[2])
                     self.scheduler.set_capacity(self.pi_name, capacity)

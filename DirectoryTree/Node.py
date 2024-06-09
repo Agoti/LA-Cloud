@@ -1,3 +1,5 @@
+
+import threading
 from DirectoryTree.ChunkHandle import ChunkHandle
 from DirectoryTree.ChunkTable import ChunkTable
 from DirectoryTree.Permission import Permission
@@ -14,6 +16,7 @@ class Node:
         self.owner = owner
         self.permission = Permission()
         self.parent = parent
+        self.lock = threading.Lock()
     
     def __str__(self):
         return self.name
@@ -22,10 +25,12 @@ class Node:
         raise NotImplementedError("CB: subclass must implement __str__ method")
     
     def set_owner(self, owner: User):
-        self.owner = owner
+        with self.lock:
+            self.owner = owner
     
     def set_permission(self, permission_string: str):
-        self.permission.set_permission(permission_string)
+        with self.lock:
+            self.permission.set_permission(permission_string)
     
     def verify_permission(self, user: User, operation = None):
         return self.permission.verify_permission(owner = self.owner, user = user, operation = operation)
@@ -61,12 +66,13 @@ class FileNode(Node):
     #     self.occupied += self.chunk_size
 
     def set_chunks(self, chunks: ChunkTable | dict):
-        if isinstance(chunks, dict):
-            self.chunk_table = ChunkTable.from_dict(chunks)
-        else:
-            self.chunk_table = chunks
-        self.size = self.chunk_table.get_size()
-        self.occupied = self.chunk_table.get_occupied()
+        with self.lock:
+            if isinstance(chunks, dict):
+                self.chunk_table = ChunkTable.from_dict(chunks)
+            else:
+                self.chunk_table = chunks
+            self.size = self.chunk_table.get_size()
+            self.occupied = self.chunk_table.get_occupied()
     
     def get_size(self):
         return self.size
@@ -113,8 +119,9 @@ class DirectoryNode(Node):
     
     def add_child(self, child):
         assert isinstance(child, Node), "child must be of type CB"
-        self.children.append(child)
-        child.parent = self
+        with self.lock:
+            self.children.append(child)
+            child.parent = self
     
     def get_child(self, name) -> Node:
         for child in self.children:
@@ -123,7 +130,8 @@ class DirectoryNode(Node):
         return None
     
     def remove_child(self, child):
-        self.children.remove(child)
+        with self.lock:
+            self.children.remove(child)
     
     def get_size(self):
         size = 0
