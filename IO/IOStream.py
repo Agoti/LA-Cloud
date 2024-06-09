@@ -81,10 +81,10 @@ class IOStream:
         self.input_stream = InputStream(method, **kwargs)
         self.output_stream = OutputStream(method, **kwargs)
     
-    def send(self, data: str | bytes, is_byte = False):
+    def send(self, data, is_byte = False):
         self.output_stream.send(data, is_byte)
     
-    def receive(self, is_byte = False) -> str | bytes:
+    def receive(self, is_byte = False):
         return self.input_stream.receive(is_byte)
     
     def close(self):
@@ -108,7 +108,7 @@ class OutputStream:
         elif self.method == 'nanomq':
             pass
     
-    def send(self, data: str | bytes, is_byte = False):
+    def send(self, data, is_byte = False):
         if self.method == 'stdio':
             print(data)
         elif self.method == 'socket':
@@ -150,7 +150,7 @@ class InputStream:
         elif self.method == 'nanomq':
             pass
     
-    def receive(self, is_byte = False) -> str | bytes:
+    def receive(self, is_byte = False):
         if self.method == 'stdio':
             data = input()
         elif self.method == 'socket':
