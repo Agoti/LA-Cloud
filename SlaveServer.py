@@ -13,6 +13,7 @@ class Slave:
                  master_ip = "localhost",
                  master_port = 9998, 
                  client_port = 9997,
+                 heartbeat_port = 8887,
                  name = "pi1", 
                  path = ".",
                  disk_space = 1000):
@@ -35,6 +36,8 @@ class Slave:
 
         self.chunk_refs = ChunkRefs()
         self.chunk_path = path
+
+        self.heartbeat_answer = Answer(method = 'socket', host = slave_ip, port = heartbeat_port)
 
         print(f"Slave: {self.name} started")
     
@@ -79,18 +82,36 @@ class Slave:
                 traceback.print_exc()
                 break
     
-    def slave_ping_start(self):
+    def heartbeat_start(self):
         while self.ping_running:
             try:
-                data = self.master_io.receive()
-                if data.startswith("PING"):
-                    self.capicity = self.get_disk_space()
-                    self.master_io.send(f"PONG: {self.capicity}")
+                heartbeat_io = self.heartbeat_answer.accept()
             except socket.timeout:
                 continue
             except Exception as e:
-                print(f"Slave: Error: {e}")
+                print(f"Slave-Heartbeat: Error: {e}")
+                import traceback
+                traceback.print_exc()
                 break
+
+        while self.ping_running:
+            try:
+                data = heartbeat_io.receive().lower()
+                print(f"Slave-Heartbeat: Received: {data}")
+                if data.startswith("heartbeat"):
+                    response = " ".join("alive", self.name, str(self.virtual_disk_space))
+                else:
+                    response = "400 Bad Recv"
+                heartbeat_io.send(response)
+                print(f"Slave-Heartbeat: Sending: {response}")
+            except socket.timeout:
+                continue
+            except Exception as e:
+                print(f"Slave-Heartbeat: Error: {e}")
+                import traceback
+                traceback.print_exc()
+                break
+
     
     def handle_client(self):
         while True:

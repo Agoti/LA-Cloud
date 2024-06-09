@@ -40,6 +40,11 @@ class Scheduler:
         self.slave_states.add_state(pi_name)
         self.lock.release()
     
+    def remove_pi(self, pi_name: str):
+        self.lock.acquire()
+        self.slave_states.remove_state(pi_name)
+        self.lock.release()
+    
     def set_capacity(self, pi_name: str, capacity: int):
         self.lock.acquire()
         self.slave_states.set_capacity(pi_name, capacity)

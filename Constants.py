@@ -1,7 +1,7 @@
 
-CHUNK_SIZE = 4*1024*1024
 CHUNK_SIZE = 1024 * 1024 * 4
 N_BACKUPS = 2
+HEARTBEAT_INTERVAL = 5
 
 # MASTER_IP = "localhost"
 # SLAVE_IP_PORT = {
@@ -37,15 +37,18 @@ MASTER_IP = "10.0.0.1"
 SLAVE_IP_PORT = {
     "pi1": {
         "ip": "10.0.0.1",
-        "port": 9997
+        "port": 9997,
+        "heartbeat": 8887
     },
     "pi2": {
         "ip": "10.0.0.1",
-        "port": 9996
+        "port": 9996,
+        "heartbeat": 8886
     },
     "pi3": {
         "ip": "10.0.0.1",
-        "port": 9995
+        "port": 9995,
+        "heartbeat": 8885
     }
 }
 # DISK = {
