@@ -44,7 +44,10 @@ class SCThread(threading.Thread):
                 response = self.process(data)
 
                 if response:
-                    print(f"SCThread: Sending: {response}")
+                    if isinstance(response, bytes):
+                        print(f"SCThread: Sending: {response[:10]}...")
+                    else:
+                        print(f"SCThread: Sending: {response}")
                     self.io_stream.send(response, is_byte = isinstance(response, bytes))
                 else:
                     self.io_stream.send("500 Empty response")
