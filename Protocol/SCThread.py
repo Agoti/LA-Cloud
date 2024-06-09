@@ -22,6 +22,7 @@ class SCThread(threading.Thread):
 
         self.chunk_handle = None
         self.bytes_received = b""
+        self.invalid_count = 0
 
         print(f"SCThread: {self.name} started")
     
@@ -35,10 +36,11 @@ class SCThread(threading.Thread):
                     data = b""
                     while len(data) < file_size:
                         data += self.io_stream.receive(is_byte = True)
+                    print(f"SCThread: Received: {data[:10]}...")
                 else:
                     data = self.io_stream.receive()
+                    print(f"SCThread: Received: {data}")
 
-                print(f"SCThread: Received: {data}")
                 response = self.process(data)
 
                 if response:
@@ -48,6 +50,15 @@ class SCThread(threading.Thread):
                     self.io_stream.send("500 Empty response")
                 if response == "221 Goodbye":
                     break
+
+                if response == "501 Invalid Command":
+                    if self.invalid_count >= 3:
+                        self.io_stream.send("221 Goodbye")
+                        break
+                    else:
+                        self.invalid_count += 1
+                else:
+                    self.invalid_count = 0
 
             except Exception as e:
                 print(f"SCThread: Error: {e}")
