@@ -216,7 +216,10 @@ class MCThread(threading.Thread):
         self.directory_tree.add_file(absolute_path, self.user, "-rwxr-xr--", chunk_table, 10)
         print(f"ftp_stor: chunk_table:\n {chunk_table}")
         master_table = self.scheduler.select_backup(chunk_table)
-        self.scheduler.allocate_request(chunk_table, master_table)
+        ok = self.scheduler.allocate_request(chunk_table, master_table)
+
+        if not ok:
+            return "250 Pi no response"
 
         if master_table is None:
             return "550 Backup Error"
@@ -239,13 +242,13 @@ class MCThread(threading.Thread):
     
     def _deallocate_chunks(self, node):
         if isinstance(node, FileNode):
-            self.scheduler.deallocate_request(node.chunk_table.to_dict(ChunkHandle))
+            return self.scheduler.deallocate_request(node.chunk_table)
             # for chunk in node.chunks:
             #     # print(f"Deallocating chunk: {str(chunk)}")
             #     self.scheduler.deallocate_request(chunk)
         elif isinstance(node, DirectoryNode):
             for child in node.children:
-                self._deallocate_chunks(child)
+                return self._deallocate_chunks(child)
         
 
     def ftp_delete(self, path):
@@ -258,9 +261,15 @@ class MCThread(threading.Thread):
             return "550 Not a file"
         if not node.verify_permission(self.user, "write"):
             return "550 Permission denied"
-        self._deallocate_chunks(node)
+
+        ok = self._deallocate_chunks(node)
+
         absolute_path = self.directory_tree.get_path(node)
         self.directory_tree.remove(absolute_path)
+
+        if not ok:
+            return "250 Warning: Pi no response"
+
         return "200 File deleted"
 
     
@@ -274,9 +283,15 @@ class MCThread(threading.Thread):
             return "550 Not a directory"
         if not node.verify_permission(self.user, "write"):
             return "550 Permission denied"
-        self._deallocate_chunks(node)
+
+        ok = self._deallocate_chunks(node)
+
         absolute_path = self.directory_tree.get_path(node)
         self.directory_tree.remove(absolute_path)
+
+        if not ok:
+            return "250 Warning: Pi no response"
+
         return "200 Directory deleted"
 
     def ftp_listl(self, path = None):

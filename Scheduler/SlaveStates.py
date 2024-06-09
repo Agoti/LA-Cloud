@@ -24,15 +24,19 @@ class SlaveStates:
                 return state
         return None
     
-    def get_message_client(self, pi_name: str):
+    def get_message_client(self, pi_name: str, timeout = None):
         state = self.get_state(pi_name)
         if state is not None:
-            return state.message_queue_s2c.get()
+            return state.message_queue_s2c.get(timeout = timeout)
         return None
     
     def put_message_client(self, pi_name: str, message: str):
         state = self.get_state(pi_name)
         if state is not None:
+            # Clear s2c queue
+            while not state.message_queue_s2c.empty():
+                state.message_queue_s2c.get()
+
             state.message_queue_c2s.put(message)
         
     def get_message_slave(self, pi_name: str):
@@ -73,6 +77,8 @@ class SlaveStates:
         for state in self.states:
             if state.pi_name == pi_name:
                 self.states.remove(state)
+                print(f"SlaveStates: remove_state: {pi_name}")
+                print(self)
                 return
     
     def __str__(self):

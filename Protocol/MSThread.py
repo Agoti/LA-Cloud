@@ -1,6 +1,8 @@
 
 import threading
+import socket
 import time
+import random
 from Scheduler.SlaveStates import SlaveStates, PiState
 from Scheduler.Scheduler import Scheduler
 from IO.IOStream import IOStream, Knock
@@ -34,9 +36,10 @@ class MSThread(threading.Thread):
                 self.debug_print(f"MSThread: send: {data_send}")
                 self.io_stream.send(data_send)
                 response = self.io_stream.receive()
-                message = self.process_recv(response)
-                self.scheduler.put_message_slave(self.pi_name, message)
                 self.debug_print(f"MSThread: response: {response}")
+                message = self.process_recv(response)
+                if message:
+                    self.scheduler.put_message_slave(self.pi_name, message)
 
         except Exception as e:
             print(f"MSThread: Error: {e}")
@@ -56,29 +59,38 @@ class MSThread(threading.Thread):
             threading.Thread(target = self.heartbeat, daemon = True).start()
             if self.debug:
                 self.scheduler._print_state()
-            return "200 OK"
+            return None
         elif data == "ACK":
-            return "200 OK"
+            return "ACK"
 
         return "400 Bad Recv"
     
     def heartbeat(self):
-        self.heartbeat_io = Knock(method = 'socket', host = SLAVE_IP_PORT[self.pi_name]['ip'], port = SLAVE_IP_PORT[self.pi_name]['heartbeat'], timeout = HEARTBEAT_INTERVAL).knock()
+        heartbeat_io = Knock(method = 'socket', host = SLAVE_IP_PORT[self.pi_name]['ip'], port = SLAVE_IP_PORT[self.pi_name]['heartbeat'], timeout = HEARTBEAT_INTERVAL).knock()
         while self.running:
             try:
-                self.heartbeat_io.send("Heartbeat")
-                print(f"Heartbeat to {self.pi_name}")
-                response = self.heartbeat_io.receive().lower()
-                print(f"Heartbeat to {self.pi_name}: {response}")
+                heartbeat_io.send("Heartbeat")
+                if random.random() < 0.1:
+                    print(f"Heartbeat to {self.pi_name}")
+                response = heartbeat_io.receive().lower()
                 if response.startswith("alive"):
+                    if random.random() < 0.1:
+                        print(f"Heartbeat to {self.pi_name}: {response}")
                     capacity = int(response.split(" ")[2])
                     self.scheduler.set_capacity(self.pi_name, capacity)
                 else:
+                    print(f"Heartbeat to {self.pi_name}: {response}")
                     self.scheduler.remove_pi(self.pi_name)
-                    self.heartbeat_io.close()
+                    heartbeat_io.close()
                     self.running = False
                     break
                 time.sleep(HEARTBEAT_INTERVAL)
+            except socket.timeout:
+                print(f"Heartbeat: Timeout")
+                self.scheduler.remove_pi(self.pi_name)
+                heartbeat_io.close()
+                self.running = False
+                break
             except Exception as e:
                 print(f"Heartbeat: Error: {e}")
                 # Print Backtrace
