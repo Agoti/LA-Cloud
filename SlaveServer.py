@@ -1,5 +1,6 @@
 import threading
 import socket
+import random
 from IO.IOStream import Knock, Answer, IOStream
 from Protocol.SCThread import SCThread
 from DirectoryTree.ChunkHandle import ChunkHandle
@@ -13,6 +14,7 @@ class Slave:
                  master_ip = "localhost",
                  master_port = 9998, 
                  client_port = 9997,
+                 heartbeat_port = 8887,
                  name = "pi1", 
                  path = ".",
                  disk_space = 1000):
@@ -24,7 +26,7 @@ class Slave:
         self.msg_running = True
         self.ping_running = True
         self.msg_thread = threading.Thread(target = self.slave_start, daemon=True)
-        # self.ping_thread = threading.Thread(target = self.slave_ping_start, daemon=True)
+        self.heartbeat_thread = threading.Thread(target = self.heartbeat_start, daemon=True)
         self.client_thread = threading.Thread(target = self.handle_client, daemon=True)
 
         self.client_answer = Answer(method = 'socket', host = slave_ip, port = client_port)
@@ -36,12 +38,14 @@ class Slave:
         self.chunk_refs = ChunkRefs()
         self.chunk_path = path
 
+        self.heartbeat_answer = Answer(method = 'socket', host = slave_ip, port = heartbeat_port)
+
         print(f"Slave: {self.name} started")
     
     def start(self):
         self.chunk_refs = ChunkRefs.load(os.path.join(self.chunk_path, "chunk_refs.json"))
         self.msg_thread.start()
-        # self.ping_thread.start()
+        self.heartbeat_thread.start()
         self.client_thread.start()
 
     def slave_start(self):
@@ -79,18 +83,41 @@ class Slave:
                 traceback.print_exc()
                 break
     
-    def slave_ping_start(self):
+    def heartbeat_start(self):
         while self.ping_running:
             try:
-                data = self.master_io.receive()
-                if data.startswith("PING"):
-                    self.capicity = self.get_disk_space()
-                    self.master_io.send(f"PONG: {self.capicity}")
+                heartbeat_io = self.heartbeat_answer.accept()
+                print(f"Slave-Heartbeat: Master connected")
+                break
             except socket.timeout:
                 continue
             except Exception as e:
-                print(f"Slave: Error: {e}")
+                print(f"Slave-Heartbeat: Error: {e}")
+                import traceback
+                traceback.print_exc()
                 break
+
+        while self.ping_running:
+            try:
+                data = heartbeat_io.receive().lower()
+                r = random.random()
+                if r < 0.1:
+                    print(f"Slave-Heartbeat: Received: {data}")
+                if data.startswith("heartbeat"):
+                    response = " ".join(["alive", self.name, str(self.virtual_disk_space)])
+                else:
+                    response = "Heartbeat Response: 400 Bad Recv"
+                heartbeat_io.send(response)
+                if r < 0.1:
+                    print(f"Slave-Heartbeat: Sending: {response}")
+            except socket.timeout:
+                continue
+            except Exception as e:
+                print(f"Slave-Heartbeat: Error: {e}")
+                import traceback
+                traceback.print_exc()
+                break
+
     
     def handle_client(self):
         while True:
@@ -164,6 +191,7 @@ if __name__ == "__main__":
                   slave_ip=SLAVE_IP_PORT[name]["ip"],
                   master_port=MASTER_SLAVE_PORT, 
                   client_port=SLAVE_IP_PORT[name]["port"],
+                  heartbeat_port=SLAVE_IP_PORT[name]["heartbeat"],
                   path=DISK[name]["path"],
                   disk_space=DISK[name]["capacity"])
     import time

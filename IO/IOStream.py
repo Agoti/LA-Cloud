@@ -2,6 +2,7 @@
 import socket
 
 # FIXME: A nicer implementation compared to 'if-elif-else' would be polymorphism. But that's too much for this project.
+# NOTE: packet IO only supports 'socket' method.
 
 class Knock:
     
@@ -14,6 +15,7 @@ class Knock:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((kwargs['host'], kwargs['port']))
             print(f"Knock: Connected to {kwargs['host']}:{kwargs['port']}")
+            self.timeout = kwargs.get('timeout', None)
         elif method == 'zeromq':
             pass
         elif method == 'nanomq':
@@ -21,7 +23,7 @@ class Knock:
     
     def knock(self):
         if self.method == 'socket':
-            return IOStream(method = 'socket', socket = self.socket)
+            return IOStream(method = 'socket', socket = self.socket, timeout = self.timeout)
         elif self.method == 'zeromq':
             raise NotImplementedError()
         elif self.method == 'nanomq':
@@ -49,6 +51,7 @@ class Answer:
             self.socket.bind((kwargs['host'], kwargs['port']))
             self.socket.settimeout(1)
             self.socket.listen(5)
+            self.timeout = kwargs.get('timeout', None)
             print(f"Answer: Listening on {kwargs['host']}:{kwargs['port']}")
         elif method == 'zeromq':
             pass
@@ -59,7 +62,7 @@ class Answer:
         if self.method == 'socket':
             client, address = self.socket.accept()
             print(f"Answer: Connection from {address} has been established!")
-            return IOStream(method = 'socket', socket = client)
+            return IOStream(method = 'socket', socket = client, timeout = self.timeout)
     
     def close(self):
         if self.method == 'socket':
@@ -141,6 +144,7 @@ class InputStream:
             pass
         elif self.method == 'socket':
             self.socket = kwargs['socket']
+            self.timeout = kwargs.get('timeout', None)
         elif self.method == 'zeromq':
             pass
         elif self.method == 'nanomq':
@@ -150,6 +154,8 @@ class InputStream:
         if self.method == 'stdio':
             data = input()
         elif self.method == 'socket':
+            if self.timeout:
+                self.socket.settimeout(self.timeout)
             if is_byte:
                 data = self.socket.recv(1024)
             else:

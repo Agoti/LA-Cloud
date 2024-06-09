@@ -21,8 +21,8 @@ class Scheduler:
         if self.debug:
             print(message)
 
-    def get_message_client(self, pi_name: str):
-        message = self.slave_states.get_message_client(pi_name)
+    def get_message_client(self, pi_name: str, timeout = None):
+        message = self.slave_states.get_message_client(pi_name, timeout = timeout)
         return message
     
     def put_message_client(self, pi_name: str, message: str):
@@ -38,6 +38,11 @@ class Scheduler:
     def add_pi(self, pi_name: str):
         self.lock.acquire()
         self.slave_states.add_state(pi_name)
+        self.lock.release()
+    
+    def remove_pi(self, pi_name: str):
+        self.lock.acquire()
+        self.slave_states.remove_state(pi_name)
         self.lock.release()
     
     def set_capacity(self, pi_name: str, capacity: int):
@@ -143,8 +148,18 @@ class Scheduler:
         # self.put_message_client(pi_name, message_builder)
         for pi_name, message in message_builder.items():
             self.put_message_client(pi_name, message)
+        
+            try:
+                response = self.get_message_client(pi_name, timeout = ALLOCATE_TIMEOUT)
+                if response != "ACK":
+                    raise Exception("Response is not ACK: " + response)
+            except Exception as e:
+                print(f"ACK not received: {e}")
+                self.lock.release()
+                return False
 
         self.lock.release()
+        return True
     
     def deallocate_request(self, chunk_handles: dict):
         self.lock.acquire()
@@ -159,16 +174,26 @@ class Scheduler:
         
         for pi_name, message in message_builder.items():
             self.put_message_client(pi_name, message)
+        
+            try:
+                response = self.get_message_client(pi_name, timeout = ALLOCATE_TIMEOUT)
+                if response != "ACK":
+                    raise Exception("Response is not ACK" + response)
+            except Exception as e:
+                print(f"ACK not received: {e}")
+                self.lock.release()
+                return False
 
         self.lock.release()
+        return True
                     
     def select_backup(self, chunk_table: ChunkTable):
 
         online_pi_names = self.slave_states.get_pi_names()
+        print(f"online_pi_names: {online_pi_names}")
         for backup, chunks in chunk_table.get_items():
-            for chunk in chunks:
-                if chunk.location not in online_pi_names:
-                    continue
+            if any([chunk.location not in online_pi_names for chunk in chunks]):
+                continue
             return ChunkTable.from_dict({backup: chunks})
         
         return None

@@ -10,12 +10,12 @@ class RawClient:
         self.io_stream = self.knock.knock()
 
     def send(self, data, is_byte = False):
-        print(f"Sending: {data}")
+        print(f"Sending: {data[:100]}")
         self.io_stream.send(data, is_byte = is_byte)
 
     def recv(self, is_byte = False):
         data = self.io_stream.receive(is_byte=is_byte)
-        print(f"Received: {data}")
+        print(f"Received: {data[:100]}")
         return data
 
     def close(self):
