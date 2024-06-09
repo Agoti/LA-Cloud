@@ -70,7 +70,7 @@ class SCThread(threading.Thread):
         
         self.io_stream.close()
 
-    def process(self, data: str | bytes) -> str | bytes:
+    def process(self, data):
 
         if isinstance(data, str) and data.startswith("quit"):
             response = "221 Goodbye"
